@@ -1,14 +1,13 @@
 <?php
 $host = "localhost";
+$dbname = "expense_tracker";
 $user = "root";
 $pass = "";
-$dbname = "expense_tracker";
 
-$conn = new mysqli($host, $user, $pass, $dbname);
-
-if ($conn->connect_error) {
-  die("Koneksi gagal: " . $conn->connect_error);
+try {
+    $db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Koneksi database gagal: " . $e->getMessage());
 }
-
-// echo "Koneksi berhasil!";
 ?>

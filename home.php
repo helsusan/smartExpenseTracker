@@ -1,8 +1,6 @@
 <?php
-// Import koneksi dari file db_config.php
 include 'db_config.php';
 
-// Query ambil data user
 $sql = "SELECT id, name, email FROM users";
 $result = $conn->query($sql);
 ?>

@@ -1,0 +1,285 @@
+   :root {
+    /* 🎨 Warna Dasar Halaman & Form */
+    --bg-page: #FDFBEE;
+    --nav-bg: #0A514B;
+    --nav-text: #FFFFFF;
+    --text-dark: #333333;
+    --text-label: #0A514B;
+    --border-color: #D1D5DB;
+    --border-focus: #0A514B;
+    --button-stroke: #0A514B;
+    --button-hover-bg: #F3FFF5;
+    --button-add-bg: #0A514B;
+  
+    --sidebar-bg: #0A514B;
+    --text-inactive: #FFFFFF;
+    --text-active: #0A514B;
+    --bg-active: #F3FFF5;
+    --sidebar-border: rgba(255, 255, 255, 0.4);
+    --sidebar-hover: rgba(255, 255, 255, 0.1);
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-dark);
+  }
+  
+  .navbar {
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+    padding: 18px 5%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navbar h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  .group-form {
+    width: 100%;
+  }
+  
+  .form-group {
+    margin-bottom: 24px;
+  }
+  
+  .form-group label {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-label);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group input[type="email"],
+  .form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+  }
+  
+  .form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='292.4' height='292.4'%3E%3Cpath fill='%230A514B' d='M287 69.4a17.6 17.6 0 0 0-13-5.4H18.4c-5 0-9.3 1.8-13 5.4A17.6 17.6 0 0 0 0 82.2c0 5 1.8 9.3 5.4 13l128 128c3.6 3.6 7.8 5.4 13 5.4s9.4-1.8 13-5.4L287 95c3.6-3.6 5.4-7.8 5.4-13 0-5-1.8-9.2-5.4-12.8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 10px;
+    padding-right: 40px;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(10, 81, 75, 0.1);
+  }
+  
+  .invite-wrapper {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .invite-wrapper input {
+    flex-grow: 1;
+  }
+  
+  #add-participant-btn {
+    padding: 0 20px;
+    font-weight: 500;
+    background-color: var(--button-add-bg);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  #add-participant-btn:hover {
+    background-color: #08433e;
+  }
+  
+  .participants-list {
+    margin-top: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .participants-list p {
+    margin: 4px 0;
+    color: #555;
+    padding: 5px 10px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--button-stroke);
+    background-color: transparent;
+    border: 2px solid var(--button-stroke);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .submit-btn:hover {
+    background-color: var(--button-hover-bg);
+    color: var(--nav-bg);
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: var(--sidebar-bg);
+    color: var(--text-inactive);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .sidebar-nav {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .add-group-btn,
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid var(--sidebar-border);
+    color: var(--text-inactive);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .add-group-btn:hover,
+  .logout-btn:hover {
+    background: var(--sidebar-hover);
+    border-color: var(--text-inactive);
+  }
+  
+  .sidebar-footer {
+    margin-top: 20px;
+  }
+  
+  .group-title {
+    font-size: 13px;
+    color: var(--sidebar-border);
+    text-transform: uppercase;
+    font-weight: 500;
+    margin: 24px 0 10px;
+    padding-left: 10px;
+  }
+  
+  /* List Grup */
+  .group-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .group-list a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 10px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-inactive);
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .group-list a:not(.active):hover {
+    background: var(--sidebar-hover);
+  }
+  
+  .group-list a.active {
+    background: var(--bg-active);
+    color: var(--text-active);
+    font-weight: 600;
+  }
+  
+  .hamburger-btn {
+    background: var(--sidebar-bg);
+    color: var(--text-inactive);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger-btn:hover {
+    background: #08433e;
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+  }
+  
+  .sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
