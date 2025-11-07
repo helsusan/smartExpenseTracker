@@ -1,18 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     const addBtn = document.getElementById('add-participant-btn');
     const emailInput = document.getElementById('invite-email');
     const participantsList = document.getElementById('participants-list');
     const hiddenInput = document.getElementById('participants-hidden-input');
+    const dataList = document.getElementById('user-emails');
 
     let invitedEmails = [];
+    let lastSelectedEmail = "";
+
+    emailInput.addEventListener('input', (e) => {
+        lastSelectedEmail = e.target.value.trim().toLowerCase();
+    });
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            const email = emailInput.value.trim();
+            const email = (emailInput.value.trim() || lastSelectedEmail).toLowerCase();
 
-            // Validasi sederhana
-            if (!email || !email.includes('@')) {
+            // Validasi regex yang lebih aman
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
                 alert('Silakan masukkan alamat email yang valid.');
                 return;
             }
@@ -23,12 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Tambahkan email ke array & tampilkan
+            // Tambahkan email ke array
             invitedEmails.push(email);
+
+            // Buat elemen participant
             const newParticipant = document.createElement('p');
             newParticipant.textContent = email;
 
-            // Tombol hapus (opsional)
+            // Tombol hapus (×)
             const removeBtn = document.createElement('span');
             removeBtn.textContent = ' ×';
             removeBtn.style.color = '#b91c1c';
@@ -38,30 +46,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 invitedEmails = invitedEmails.filter(e => e !== email);
                 newParticipant.remove();
                 updateHiddenInput();
+                restoreToDatalist(email);
             });
 
             newParticipant.appendChild(removeBtn);
             participantsList.appendChild(newParticipant);
+
+            // Update hidden input
             updateHiddenInput();
+
+            // Hapus email dari datalist (agar tak muncul lagi)
+            removeFromDatalist(email);
+
+            // Reset input
             emailInput.value = '';
+            lastSelectedEmail = '';
         });
     }
 
-    // Update input tersembunyi agar dikirim ke PHP
+
     function updateHiddenInput() {
         hiddenInput.value = invitedEmails.join(',');
     }
 
+
+    function removeFromDatalist(email) {
+        for (let option of dataList.options) {
+            if (option.value.toLowerCase() === email) {
+                option.remove();
+                break;
+            }
+        }
+    }
+
+
+    function restoreToDatalist(email) {
+        const newOption = document.createElement('option');
+        newOption.value = email;
+        dataList.appendChild(newOption);
+    }
+
+
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    const toggleBtn = document.getElementById('hamburger-btn'); // ID dari sidebar.php
+    const toggleBtn = document.getElementById('hamburger-btn');
     const toggleIcon = toggleBtn ? toggleBtn.querySelector('.material-icons-outlined') : null;
 
     function toggleSidebar() {
         sidebar.classList.toggle('open');
         overlay.classList.toggle('open');
-
-        // Ganti ikon menu/close
         if (toggleIcon) {
             toggleIcon.textContent = sidebar.classList.contains('open') ? 'close' : 'menu';
         }
