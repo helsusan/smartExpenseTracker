@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Smart Expense Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="sign_up_style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="left-panel">
+            
+            <div class="mascot-container">
+                <div class="mascot">
+                    <div class="hair"></div>
+                    <div class="face">
+                        <div class="glasses">
+                            <div class="glass-lens left">
+                                <div class="pupil"></div>
+                            </div>
+                            <div class="bridge"></div>
+                            <div class="glass-lens right">
+                                <div class="pupil"></div>
+                            </div>
+                        </div>
+                        <div class="mouth"></div>
+                        <div class="blush left"></div>
+                        <div class="blush right"></div>
+                    </div>
+                    <div class="body-container">
+                        <div class="suit"></div>
+                        <div class="shirt-collar"></div>
+                        <div class="tie-knot"></div>
+                        <div class="tie-long"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="welcome-text">
+                <h2>Smart Expense Tracker</h2>
+                <p>Track every penny, grow every asset.</p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="form-content">
+                <div class="header-form">
+                    <h2>Create Account</h2>
+                    <p>Let's get started!</p>
+                </div>
+                
+                <?php if (isset($_GET['error'])): ?>
+                    <div style="padding: 10px; background: #fee2e2; color: #b91c1c; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
+                        ⚠️ <?php echo htmlspecialchars($_GET['error']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form id="signup-form" method="POST" action="sign_up_process.php">
+                    
+                    <div class="input-group">
+                        <label>Your Name</label>
+                        <div class="input-wrapper">
+                            <span class="material-icons">person</span>
+                            <input type="text" id="name" name="name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <span class="material-icons">email</span>
+                            <input type="email" id="email" name="email" placeholder="finance@company.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <span class="material-icons">lock</span>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Confirm Password</label>
+                        <div class="input-wrapper">
+                            <span class="material-icons">lock</span>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Your Monthly Budget (Rp)</label>
+                        <div class="input-wrapper">
+                            <span class="material-icons">account_balance_wallet</span>
+                            <input type="number" id="budget" name="budget" placeholder="5000000" step="1000" min="0" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Create Account</button>
+
+                    <div class="separator">
+                        <span>Already have an account? <a href="login.php">Sign In</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="sign_up_script.js"></script>
+</body>
+</html>
