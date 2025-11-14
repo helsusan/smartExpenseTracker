@@ -1,5 +1,6 @@
 // Format currency input
 const totalAmountInput = document.getElementById('totalAmount');
+const amountHidden = document.getElementById('amountHidden');
 
 function formatRupiah(value) {
     const number = parseInt(value.toString().replace(/[^0-9]/g, ''));
@@ -16,8 +17,17 @@ totalAmountInput.addEventListener('input', function(e) {
 });
 
 // Before form submit, convert Rupiah to number
-document.ge
-tElementById('incomeForm').addEventListener('submit', function(e) {
+document.getElementById('incomeForm').addEventListener('submit', function(e) {
     const amount = parseRupiah(totalAmountInput.value);
-    document.getElementById('amountHidden').value = amount;
+
+    // Validasi amount tidak boleh 0 atau kosong
+    if (amount <= 0) {
+        e.preventDefault();
+        alert('Please enter a valid amount');
+        return false;
+    }
+
+    // Set nilai numeric ke hidden field
+    amountHidden.value = amount;
+    totalAmountInput.value = amount;    
 });
