@@ -1,132 +1,125 @@
 let itemCounter = 1;
-let searchTimeout;
-let currentCategories = [];
 
-// Category input handling
-const categoryInput = document.getElementById('categoryInput');
-const categoryDropdown = document.getElementById('categoryDropdown');
-const categoryOptions = document.getElementById('categoryOptions');
-const createOption = document.getElementById('createOption');
-const createText = document.getElementById('createText');
+const input = document.getElementById("dropdownInput");
+const list = document.getElementById("dropdownList");
+const hiddenCategoryName = document.getElementById("categoryNameInput");
 
-categoryInput.addEventListener('focus', function() {
-    searchCategories(this.value);
-    categoryDropdown.classList.add('show');
-});
+let categories = [];
 
-categoryInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    const value = this.value.trim();
-    
-    searchTimeout = setTimeout(() => {
-        searchCategories(value);
-    }, 300);
-});
+// Fetch categories from database (AJAX)
+function loadCategories(search = "") {
+    const formData = new URLSearchParams();
+    formData.append("action", "search_categories");
+    formData.append("search", search);
 
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.category-autocomplete')) {
-        categoryDropdown.classList.remove('show');
-    }
-});
-
-// Search categories from database
-function searchCategories(query) {
-    fetch('expense.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'action=search_categories&search=' + encodeURIComponent(query)
+    fetch("expense_form.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            currentCategories = data.categories;
-            displayCategories(data.categories, query);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                categories = data.categories;
+                renderDropdown(search);
+            } else {
+                console.error("Failed to load categories:", data.message);
+            }
+        })
+        .catch(err => console.error("Error:", err));
 }
 
-// Display categories in dropdown
-function displayCategories(categories, query) {
-    categoryOptions.innerHTML = '';
-    
-    if (categories.length === 0 && !query) {
-        categoryOptions.innerHTML = '<div style="padding: 15px; text-align: center; color: #999;">Start typing to search categories</div>';
-        createOption.style.display = 'none';
-        return;
-    }
+// Render dropdown list
+function renderDropdown(filter = "") {
+    list.innerHTML = "";
+    const filtered = categories.filter(c =>
+        c.name.toLowerCase().includes(filter.toLowerCase())
+    );
 
-    if (categories.length > 0) {
-        categories.forEach(category => {
-            const option = document.createElement('div');
-            option.className = 'category-option';
-            option.innerHTML = `
-                <span class="category-name">${category.name}</span>
-                <span class="category-delete-btn" onclick="event.stopPropagation(); deleteCategory(${category.id})">🗑️</span>
-            `;
-            option.onclick = function(e) {
-                if (!e.target.classList.contains('category-delete-btn')) {
-                    selectCategory(category.name);
-                }
-            };
-            categoryOptions.appendChild(option);
-        });
-    } else if (query) {
-        categoryOptions.innerHTML = '<div style="padding: 15px; text-align: center; color: #999;">No categories found</div>';
-    }
-
-    // Show create option if query doesn't match any existing category
-    if (query && !categories.some(cat => cat.name.toLowerCase() === query.toLowerCase())) {
-        createText.textContent = query;
-        createOption.style.display = 'flex';
-        createOption.onclick = function() {
-            selectCategory(query);
-        };
+    // Jika tidak ada hasil dan user mengetik sesuatu, tampilkan opsi create
+    if (filtered.length === 0 && filter !== "") {
+        const createItem = document.createElement("div");
+        createItem.classList.add("dropdown-item", "create-item");
+        createItem.textContent = `+ Create "${filter}"`;
+        createItem.addEventListener("click", () => selectCategory(filter, true));
+        list.appendChild(createItem);
     } else {
-        createOption.style.display = 'none';
+        filtered.forEach(cat => {
+            const item = document.createElement("div");
+            item.classList.add("dropdown-item");
+
+            const span = document.createElement("span");
+            span.textContent = cat.name;
+
+            // const del = document.createElement("span");
+            // del.classList.add("delete-btn");
+            // del.textContent = "×";
+            // del.title = "Delete category";
+
+            span.addEventListener("click", () => selectCategory(cat.name));
+            del.addEventListener("click", e => {
+                e.stopPropagation();
+                deleteCategory(cat.id);
+            });
+
+            item.appendChild(span);
+            item.appendChild(del);
+            list.appendChild(item);
+        });
     }
 
-    categoryDropdown.classList.add('show');
+    list.style.display = "block";
 }
 
-// Select category
-function selectCategory(name) {
-    categoryInput.value = name;
-    document.getElementById('categoryNameInput').value = name;
-    categoryDropdown.classList.remove('show');
+// Select or create category
+function selectCategory(name, isNew = false) {
+    input.value = name;
+    hiddenCategoryName.value = name;
+    list.style.display = "none";
+
+    if (isNew) {
+        alert(`Category "${name}" will be created when you submit.`);
+    }
 }
 
-// Delete category
+// Delete category (AJAX)
 function deleteCategory(id) {
-    if (!confirm('Are you sure you want to delete this category?')) {
-        return;
-    }
+    if (!confirm("Are you sure you want to delete this category?")) return;
 
-    fetch('expense.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'action=delete_category&category_id=' + id
+    const formData = new URLSearchParams();
+    formData.append("action", "delete_category");
+    formData.append("category_id", id);
+
+    fetch("expense_form.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Category deleted successfully!');
-            searchCategories(categoryInput.value);
-        } else {
-            alert('Failed to delete category: ' + data.message);
-        }
-    })
-    .catch(error => {
-        alert('Error: ' + error);
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Category deleted!");
+                loadCategories(input.value);
+            } else {
+                alert("Delete failed: " + data.message);
+            }
+        })
+        .catch(err => console.error("Error:", err));
 }
+
+// Input listeners
+input.addEventListener("focus", () => loadCategories(input.value));
+input.addEventListener("input", () => loadCategories(input.value));
+
+document.addEventListener("click", e => {
+    if (!e.target.closest(".dropdown-container")) {
+        list.style.display = "none";
+    }
+});
+
+
+
+
 
 
 
@@ -166,9 +159,8 @@ function calculateTotal() {
     const tax = parseRupiah(document.getElementById('tax').value);
     const service = parseRupiah(document.getElementById('service').value);
     const discount = parseRupiah(document.getElementById('discount').value);
-    const others = parseRupiah(document.getElementById('others').value);
             
-    const total = subtotal + tax + service - discount + others;
+    const total = subtotal + tax + service - discount;
     document.getElementById('totalAmount').textContent = formatRupiah(total);
     document.getElementById('grandTotalInput').value = total;
 }
@@ -181,7 +173,7 @@ function addItemRow() {
         <td><input type="text" name="items[${itemCounter}][name]" placeholder="Item name" class="item-name"></td>
         <td><input type="number" name="items[${itemCounter}][quantity]" placeholder="0" class="item-quantity" step="0.01"></td>
         <td><input type="text" name="items[${itemCounter}][price]" placeholder="Rp 0" class="item-price"></td>
-        <td><button type="button" class="delete-btn" onclick="deleteRow(this)">🗑️</button></td>
+        <td><button type="button" class="delete-btn" onclick="deleteRow(this)"><span class="material-icons-outlined">delete</span></button></td>
     `;
     tbody.appendChild(newRow);
     itemCounter++;
@@ -214,7 +206,7 @@ document.getElementById('expenseForm').addEventListener('submit', function(e) {
     });
             
     // Convert summary values to numbers
-    ['subtotal', 'tax', 'service', 'discount', 'others'].forEach(id => {
+    ['subtotal', 'tax', 'service', 'discount'].forEach(id => {
         const input = document.getElementById(id);
         input.value = parseRupiah(input.value);
     });
@@ -238,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Summary inputs
-    ['tax', 'service', 'discount', 'others'].forEach(id => {
+    ['tax', 'service', 'discount'].forEach(id => {
         const input = document.getElementById(id);
         input.addEventListener('input', function() {
             this.value = formatRupiah(this.value);
