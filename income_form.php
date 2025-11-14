@@ -1,6 +1,10 @@
 <?php
 include 'db_config.php';
 
+$_SESSION['user_id'] = 3;
+$_SESSION['user_name'] = 'Aiko';
+$_SESSION['user_email'] = 'c14220072@john.petra.ac.id';
+
 // Hardcoded user_id
 $current_user_id = 3;
 
@@ -65,9 +69,75 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <title>Smart Expense Tracker - Add Income</title>
     <link rel="stylesheet" href="income_style.css">
+
+    <link rel="stylesheet" href="sidebar_group_style.css">
+    <style>
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
+            padding: 16px 5%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #hamburger-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+        }
+
+        #hamburger-btn .material-icons-outlined {
+            font-size: 26px;
+        }
+
+        .alert-success, .alert-error {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <header class="navbar">
+        <div class="navbar-left">
+            <button id="hamburger-btn" aria-label="Toggle Sidebar">
+                <span class="material-icons-outlined">menu</span>
+            </button>
+            <h1>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h1>
+        </div>
+
+        <div class="navbar-right">
+            <a href="dashboard.php" class="nav-link">
+                <span class="material-icons-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            
+            <a href="transaction.php" class="nav-link">
+                <span class="material-icons-outlined">receipt_long</span>
+                <span>Transaction</span>
+            </a>
+        </div>
+    </header>
+
+    <?php include 'sidebar.php'; ?>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <div class="income-container">
         <?php if (isset($success_message)): ?>
             <div class="alert alert-success"><?php echo $success_message; ?></div>
         <?php endif; ?>
@@ -76,9 +146,20 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="alert alert-error"><?php echo $error_message; ?></div>
         <?php endif; ?>
 
-        <div class="tab-container">
+        <!-- <div class="tab-container">
             <a href="income_form.php" class="tab active">Income</a>
             <a href="expense_form.php" class="tab">Expense</a>
+        </div> -->
+
+        <div class="tab-header">
+            <a href="dashboard.php" class="back-btn">
+                <span class="material-icons-outlined">logout</span>
+            </a>
+            
+            <div class="tab-container">
+                <a href="income_form.php" class="tab active">Income</a>
+                <a href="expense_form.php" class="tab">Expense</a>
+            </div>
         </div>
 
         <div class="form-container">
@@ -128,5 +209,6 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script src="income_script.js"></script>
+    <script src="sidebar_script.js"></script>
 </body>
 </html>
