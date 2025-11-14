@@ -13,7 +13,6 @@
     <div class="main-container">
         
         <div class="left-panel">
-            
             <div class="mascot-container">
                 <div class="mascot">
                     <div class="hair"></div>
@@ -65,7 +64,7 @@
                         <label>Your Name</label>
                         <div class="input-wrapper">
                             <span class="material-icons">person</span>
-                            <input type="text" id="name" name="name" placeholder="John Doe" required>
+                            <input type="text" id="name" name="name" placeholder="e.g. John Doe" required>
                         </div>
                     </div>
 
@@ -73,7 +72,7 @@
                         <label>Email Address</label>
                         <div class="input-wrapper">
                             <span class="material-icons">email</span>
-                            <input type="email" id="email" name="email" placeholder="finance@company.com" required>
+                            <input type="email" id="email" name="email" placeholder="e.g. finance@company.com" required>
                         </div>
                     </div>
 
@@ -97,7 +96,7 @@
                         <label>Your Monthly Budget (Rp)</label>
                         <div class="input-wrapper">
                             <span class="material-icons">account_balance_wallet</span>
-                            <input type="number" id="budget" name="budget" placeholder="5000000" step="1000" min="0" required>
+                            <input type="number" id="budget" name="budget" placeholder="e.g. 5000000" step="1000" min="0" required>
                         </div>
                     </div>
 

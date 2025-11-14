@@ -1,5 +1,4 @@
    :root {
-    /* 🎨 Warna Dasar Halaman & Form */
     --bg-page: #FDFBEE;
     --nav-bg: #0A514B;
     --nav-text: #FFFFFF;
@@ -32,9 +31,12 @@
   }
   
   .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: var(--nav-bg);
     color: var(--nav-text);
-    padding: 18px 5%;
+    padding: 12px 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
@@ -44,6 +46,39 @@
     font-weight: 600;
   }
   
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--nav-text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .nav-link .material-icons-outlined {
+      font-size: 20px;
+  }
+
   .container {
     max-width: 600px;
     margin: 40px auto;
@@ -83,7 +118,6 @@
   
   .form-group select {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='292.4' height='292.4'%3E%3Cpath fill='%230A514B' d='M287 69.4a17.6 17.6 0 0 0-13-5.4H18.4c-5 0-9.3 1.8-13 5.4A17.6 17.6 0 0 0 0 82.2c0 5 1.8 9.3 5.4 13l128 128c3.6 3.6 7.8 5.4 13 5.4s9.4-1.8 13-5.4L287 95c3.6-3.6 5.4-7.8 5.4-13 0-5-1.8-9.2-5.4-12.8z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
     background-size: 10px;
@@ -284,4 +318,36 @@
   .sidebar-overlay.open {
     opacity: 1;
     visibility: visible;
+  }
+
+  .home-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 12px 10px;
+    text-decoration: none; 
+    color: var(--text-inactive);
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+  }
+
+  .home-btn:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--text-inactive);
+  }
+
+  .home-btn .material-icons-outlined {
+    font-size: 24px;
+  }
+
+  .sidebar-separator {
+    height: 1px;
+    width: 100%;
+    background-color: var(--sidebar-border);
+    margin-bottom: 20px;
+    opacity: 0.5;
   }

@@ -77,11 +77,11 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Group</title>
+    <title>Create Group - Smart Expense Tracker</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar_group_style.css">
 
     <style>
         .navbar {
@@ -132,6 +132,18 @@ try {
             <span class="material-icons-outlined">menu</span>
         </button>
         <h1>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h1>
+    </div>
+
+    <div class="navbar-right">
+        <a href="dashboard.php" class="nav-link">
+            <span class="material-icons-outlined">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        
+        <a href="transaction.php" class="nav-link">
+            <span class="material-icons-outlined">receipt_long</span>
+            <span>Transaction</span>
+        </a>
     </div>
 </header>
 
@@ -187,7 +199,7 @@ try {
     </form>
 </main>
 
-<script src="script.js"></script>
+<script src="sidebar_group_script.js"></script>
 
 </body>
 </html>

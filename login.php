@@ -13,15 +13,6 @@
     <div class="main-container">
         
         <div class="left-panel">
-            
-            <div class="finance-bg">
-                <div class="chart-bar c1"></div>
-                <div class="chart-bar c2"></div>
-                <div class="chart-bar c3"></div>
-                <div class="chart-bar c4"></div>
-                <div class="chart-bar c5"></div>
-            </div>
-
             <div class="mascot-container">
                 <div class="mascot">
                     <div class="hair"></div>
@@ -50,7 +41,7 @@
 
             <div class="welcome-text">
                 <h2>Welcome Back!</h2>
-                <p>Ready to manage your wealth?</p>
+                <p>Let's get back to tracking your expenses.</p>
             </div>
         </div>
 
@@ -67,7 +58,7 @@
                         <label>Email Address</label>
                         <div class="input-wrapper">
                             <span class="material-icons">email</span>
-                            <input type="email" id="email" name="email" placeholder="finance@company.com" required>
+                            <input type="email" id="email" name="email" placeholder="e.g. finance@company.com" required>
                         </div>
                     </div>
 
@@ -77,14 +68,6 @@
                             <span class="material-icons">lock</span>
                             <input type="password" id="password" name="password" placeholder="••••••••" required>
                         </div>
-                    </div>
-
-                    <div class="actions">
-                        <label class="checkbox-container">
-                            <input type="checkbox" name="remember">
-                            Remember me
-                        </label>
-                        <a href="#" class="forgot-link">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="btn-primary">Sign In</button>
