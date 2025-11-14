@@ -7,14 +7,22 @@ $current_user_id = 3;
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_income') {
     try {
+        // Validasi amount
+        $amount = isset($_POST['amount']) ? floatval($_POST['amount']) : 0;
+        
+        if ($amount <= 0) {
+            throw new Exception("Amount must be greater than 0");
+        }
+        
         $db->beginTransaction();
         
         // Insert into transactions table
-        $stmt = $db->prepare("INSERT INTO transactions (user_id, category_id, type, name, amount, date, payment_method, created_at, updated_at) VALUES (?, NULL, 'income', 'Income Transaction', ?, ?, ?, NOW(), NOW())");
+        $stmt = $db->prepare("INSERT INTO transactions (user_id, category_id, type, name, amount, date, payment_method, created_at, updated_at) VALUES (?, NULL, 'Income', ?, ?, ?, ?, NOW(), NOW())");
         $stmt->execute([
             $current_user_id,
-            $_POST['amount'],
-            $_POST['transaction_date'],
+            $_POST['income_name'],
+            $amount,  // Gunakan variable yang sudah divalidasi
+            $_POST['income_date'],
             $_POST['payment_method']
         ]);
         $transaction_id = $db->lastInsertId();
@@ -30,7 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $db->commit();
         $success_message = "Income added successfully!";
     } catch(Exception $e) {
-        $db->rollBack();
+        // Cek apakah ada transaksi aktif sebelum rollback
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        
         $error_message = "Error: " . $e->getMessage();
     }
 }
@@ -49,6 +61,8 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <title>Smart Expense Tracker - Add Income</title>
     <link rel="stylesheet" href="income_style.css">
 </head>
@@ -71,28 +85,29 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <form id="incomeForm" method="POST">
                 <input type="hidden" name="action" value="add_income">
 
+                <div class="form-group">
+                    <label class="form-label">Income Name</label>
+                    <input type="text" class="form-input" id="incomeName" name="income_name" placeholder="Enter income name" required>
+                </div>
+
                 <div class="form-group date-input">
                     <label class="form-label">Date</label>
-                    <input type="date" class="form-input" id="incomeDate" value="<?php echo date('Y-m-d'); ?>" required>
+                    <input type="date" class="form-input" id="incomeDate" name="income_date" value="<?php echo date('Y-m-d'); ?>" required>
                 </div>
 
                 <div class="form-group total-amount-field">
-                    <label class="form-label">Total Amount</label>
-                    <input type="text" class="form-input" id="totalAmount" placeholder="Rp 50.000" required>
+                    <label class="form-label">Amount</label>
+                    <input type="text" class="form-input" id="totalAmount" placeholder="Rp 0" required>
                     <input type="hidden" name="amount" id="amountHidden">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Payment Method</label>
-                    <div class="input-with-icon">
-                        <span class="input-icon">💵</span>
-                        <select class="form-select" id="paymentMethod" required>
+                        <select class="form-select" id="paymentMethod" name="payment_method" required>
                             <option value="Cash">Cash</option>
                             <option value="BCA">BCA</option>
                             <option value="BRI">BRI</option>
-                            <option value="Mandiri">Mandiri</option>
                         </select>
-                    </div>
                 </div>
 
                 <div class="form-group">

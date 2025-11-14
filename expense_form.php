@@ -8,18 +8,6 @@ $_SESSION['user_email'] = 'c14220072@john.petra.ac.id';
 // Hardcoded user_id
 $current_user_id = 3;
 
-// Handle delete category (AJAX)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_category') {
-    try {
-        $stmt = $db->prepare("DELETE FROM categories WHERE id = ? AND (user_id = ? OR user_id IS NULL)");
-        $stmt->execute([$_POST['category_id'], $current_user_id]);
-        echo json_encode(['success' => true]);
-    } catch(Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-    exit;
-}
-
 // Handle search categories (AJAX)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'search_categories') {
     try {
@@ -131,61 +119,8 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <title>Smart Expense Tracker - Add Expense</title>
     <link rel="stylesheet" href="expense_style.css">
-
-    <style>
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--nav-bg);
-            color: var(--nav-text);
-            padding: 16px 5%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #hamburger-btn {
-            background: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-        }
-
-        #hamburger-btn .material-icons-outlined {
-            font-size: 26px;
-        }
-
-        .alert-success, .alert-error {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-left">
-            <button id="hamburger-btn" aria-label="Toggle Sidebar">
-                <span class="material-icons-outlined">menu</span>
-            </button>
-            <h1>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h1>
-        </div>
-    </header>
-
-    <?php include 'sidebar.php'; ?>
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
     <div class="container">
         <?php if (isset($success_message)): ?>
             <div class="alert alert-success"><?= $success_message; ?></div>
@@ -320,6 +255,5 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script src="expense_script.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
