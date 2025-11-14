@@ -58,7 +58,7 @@
                         <label>Email Address</label>
                         <div class="input-wrapper">
                             <span class="material-icons">email</span>
-                            <input type="email" id="email" name="email" placeholder="e.g. finance@company.com" required>
+                            <input type="email" id="email" name="email" placeholder="e.g. johndoe@user.com" required>
                         </div>
                     </div>
 
