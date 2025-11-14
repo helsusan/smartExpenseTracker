@@ -1,6 +1,10 @@
 <?php
 include 'db_config.php';
 
+$_SESSION['user_id'] = 3;
+$_SESSION['user_name'] = 'Aiko';
+$_SESSION['user_email'] = 'c14220072@john.petra.ac.id';
+
 // Hardcoded user_id
 $current_user_id = 3;
 
@@ -54,45 +58,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
         
         // Insert into transactions table
-        $stmt = $db->prepare("INSERT INTO transactions (user_id, date, payment_method, category_id) VALUES (?, ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO transactions (user_id, category_id, type, name, amount, date, payment_method, created_at, updated_at) VALUES (?, ?, 'Expense', ?, ?, ?, ?, NOW(), NOW())");
         $stmt->execute([
             $current_user_id,
+            $category_id,
+            $_POST['expense_name'],
+            $_POST['grand_total'],
             $_POST['transaction_date'],
             $_POST['payment_method'],
-            $category_id
+            
         ]);
         $transaction_id = $db->lastInsertId();
         
         // Insert transaction items
         if (isset($_POST['items']) && is_array($_POST['items'])) {
-            $stmt = $db->prepare("INSERT INTO transaction_items (transaction_id, item_name, quantity, unit_price) VALUES (?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO transaction_items (transaction_id, item_name, quantity, unit_price, subtotal, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
             foreach ($_POST['items'] as $item) {
                 if (!empty($item['name']) && !empty($item['quantity']) && !empty($item['price'])) {
                     $stmt->execute([
                         $transaction_id,
                         $item['name'],
                         $item['quantity'],
-                        $item['price']
+                        $item['price'],
+                        $_POST['subtotal']
                     ]);
                 }
             }
         }
         
         // Insert transaction summary
-        $stmt = $db->prepare("INSERT INTO transaction_summary (transaction_id, subtotal, tax, service_charge, discount, others, grand_total) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO transaction_summary (transaction_id, subtotal, tax, service_charge, discount, grand_total, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
         $stmt->execute([
             $transaction_id,
             $_POST['subtotal'],
             $_POST['tax'],
             $_POST['service_charge'],
             $_POST['discount'],
-            $_POST['others'],
             $_POST['grand_total']
         ]);
         
         // Insert group memberships
         if (isset($_POST['groups']) && is_array($_POST['groups'])) {
-            $stmt = $db->prepare("INSERT INTO transaction_groups (transaction_id, group_id) VALUES (?, ?)");
+            $stmt = $db->prepare("INSERT INTO transaction_groups (transaction_id, group_id, added_at, updated_at) VALUES (?, ?, NOW(), NOW())");
             foreach ($_POST['groups'] as $group_id) {
                 $stmt->execute([$transaction_id, $group_id]);
             }
@@ -120,10 +127,65 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <title>Smart Expense Tracker - Add Expense</title>
     <link rel="stylesheet" href="expense_style.css">
+
+    <style>
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
+            padding: 16px 5%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #hamburger-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+        }
+
+        #hamburger-btn .material-icons-outlined {
+            font-size: 26px;
+        }
+
+        .alert-success, .alert-error {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
 </head>
 <body>
+    <header class="navbar">
+        <div class="navbar-left">
+            <button id="hamburger-btn" aria-label="Toggle Sidebar">
+                <span class="material-icons-outlined">menu</span>
+            </button>
+            <h1>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h1>
+        </div>
+    </header>
+
+    <?php include 'sidebar.php'; ?>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
     <div class="container">
         <?php if (isset($success_message)): ?>
             <div class="alert alert-success"><?= $success_message; ?></div>
@@ -145,10 +207,10 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="form-container">
                 <!-- Bagian kiri -->
                 <div class="left-section">
-                    <h3 class="section-title">Invoice</h3>
+                    <h3 class="section-title">Upload Invoice</h3>
                     <div class="upload-area" onclick="document.getElementById('invoiceUpload').click()">
-                        <div class="upload-icon">➕</div>
-                        <div class="upload-text">Add Invoice</div>
+                        <div class="upload-text">➕ Add Invoice</div>
+                        <small class="upload-hint">Accepted formats: JPG, PNG, or PDF (max 5MB)</small>
                         <input type="file" id="invoiceUpload" name="invoice" style="display: none;" accept="image/*,.pdf">
                     </div>
 
@@ -167,7 +229,12 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><input type="text" name="items[0][name]" placeholder="Item name" class="item-name"></td>
                                     <td><input type="number" name="items[0][quantity]" placeholder="0" class="item-quantity" step="0.01"></td>
                                     <td><input type="text" name="items[0][price]" placeholder="Rp 0" class="item-price"></td>
-                                    <td><button type="button" class="delete-btn" onclick="deleteRow(this)">🗑️</button></td>
+                                    <!-- <td><button type="button" class="delete-btn" onclick="deleteRow(this)">🗑️</button></td> -->
+                                     <td>
+                                        <button type="button" class="delete-btn" onclick="deleteRow(this)">
+                                            <span class="material-icons-outlined">delete</span>
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -194,11 +261,6 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="text" name="discount" class="summary-input" id="discount" placeholder="Rp 0">
                     </div>
 
-                    <div class="summary-item">
-                        <span class="summary-label">Others</span>
-                        <input type="text" name="others" class="summary-input" id="others" placeholder="Rp 0">
-                    </div>
-
                     <div class="total-amount">
                         <div class="total-label">Total Amount</div>
                         <div class="total-value" id="totalAmount">Rp 0</div>
@@ -223,23 +285,18 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="form-group">
                         <label class="form-label">Payment Method</label>
                         <select class="form-select" id="paymentMethod" name="payment_method" required>
-                            <option value="Cash">💵 Cash</option>
-                            <option value="BCA">🏦 BCA</option>
-                            <option value="BRI">🏦 BRI</option>
+                            <option value="Cash">Cash</option>
+                            <option value="BCA">BCA</option>
+                            <option value="BRI">BRI</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Category</label>
                         <div class="category-autocomplete">
-                            <input type="text" class="form-input" id="categoryInput" placeholder="Type to search or create category" autocomplete="off">
-                            <div class="category-dropdown" id="categoryDropdown">
-                                <div class="dropdown-header">Select an option or create one</div>
-                                <div id="categoryOptions"></div>
-                                <div class="create-option" id="createOption" style="display: none;">
-                                    <span class="create-label">Create</span>
-                                    <span id="createText"></span>
-                                </div>
+                            <div class="dropdown-container">
+                                <input type="text" id="dropdownInput" class="dropdown-input" placeholder="Select or create category..." />
+                                <div id="dropdownList" class="dropdown-list" style="display:none;"></div>
                             </div>
                         </div>
                     </div>
@@ -263,5 +320,6 @@ $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script src="expense_script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
