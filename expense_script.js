@@ -51,19 +51,7 @@ function renderDropdown(filter = "") {
             const span = document.createElement("span");
             span.textContent = cat.name;
 
-            // const del = document.createElement("span");
-            // del.classList.add("delete-btn");
-            // del.textContent = "×";
-            // del.title = "Delete category";
-
-            span.addEventListener("click", () => selectCategory(cat.name));
-            del.addEventListener("click", e => {
-                e.stopPropagation();
-                deleteCategory(cat.id);
-            });
-
             item.appendChild(span);
-            item.appendChild(del);
             list.appendChild(item);
         });
     }
@@ -80,31 +68,6 @@ function selectCategory(name, isNew = false) {
     if (isNew) {
         alert(`Category "${name}" will be created when you submit.`);
     }
-}
-
-// Delete category (AJAX)
-function deleteCategory(id) {
-    if (!confirm("Are you sure you want to delete this category?")) return;
-
-    const formData = new URLSearchParams();
-    formData.append("action", "delete_category");
-    formData.append("category_id", id);
-
-    fetch("expense_form.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData.toString()
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Category deleted!");
-                loadCategories(input.value);
-            } else {
-                alert("Delete failed: " + data.message);
-            }
-        })
-        .catch(err => console.error("Error:", err));
 }
 
 // Input listeners
