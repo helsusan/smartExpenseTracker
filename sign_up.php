@@ -103,7 +103,7 @@
                     <button type="submit" class="btn-primary">Create Account</button>
 
                     <div class="separator">
-                        <span>Already have an account? <a href="login.php">Sign In</a></span>
+                        <span>Already have an account? <a href="login.php">Login</a></span>
                     </div>
                 </form>
             </div>
