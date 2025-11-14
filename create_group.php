@@ -199,7 +199,8 @@ try {
     </form>
 </main>
 
-<script src="sidebar_group_script.js"></script>
+<script src="sidebar_script.js"></script>
+<script src="create_group_script.js"></script>
 
 </body>
 </html>

@@ -3,13 +3,10 @@ if (!isset($db)) {
     require 'db_config.php';
 }
 
-// Ambil grup (Logika tetap sama)
 $user_id = $_SESSION['user_id'] ?? null;
 $user_groups = [];
 
 if ($user_id) {
-    // PERBAIKAN QUERY: Mengambil grup dimana user adalah MEMBER, bukan hanya creator
-    // Agar sidebar konsisten dengan logic create_group.php sebelumnya
     $stmt = $db->prepare("
         SELECT g.* FROM `groups` g
         JOIN `group_members` gm ON g.id = gm.group_id
@@ -56,7 +53,7 @@ if ($user_id) {
     </nav>
 
     <footer class="sidebar-footer">
-        <a href="logout.php" class="logout-btn">
+        <a href="login.php" class="logout-btn">
             <span class="material-icons-outlined">logout</span>
             <span>Logout</span>
         </a>
