@@ -48,7 +48,7 @@
         <div class="right-panel">
             <div class="form-content">
                 <div class="header-form">
-                    <h2>Sign In</h2>
+                    <h2>Login</h2>
                     <p>Please enter your details.</p>
                 </div>
                 
@@ -70,7 +70,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-primary">Sign In</button>
+                    <button type="submit" class="btn-primary">Login</button>
 
                     <div class="separator">
                         <span>Don't have an account? <a href="sign_up.php">Sign Up</a></span>
