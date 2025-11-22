@@ -1,8 +1,8 @@
 <?php
-$host = "localhost";
+$host = "smart-expense-db.cf07zalhg4f6.us-east-1.rds.amazonaws.com";
 $dbname = "expense_tracker";
-$user = "root";
-$pass = "";
+$user = "admin";
+$pass = "CutieDucky777*";
 
 try {
     $db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
