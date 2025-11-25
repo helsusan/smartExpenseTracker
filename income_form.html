@@ -1,0 +1,109 @@
+<!-- FILE: income_form.html
+     CHANGED: Converted from PHP to static HTML. Dynamic data (groups, submit) now handled by income_script.js via API calls.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <title>Smart Expense Tracker - Add Income</title>
+  <link rel="stylesheet" href="income_style.css">
+  <link rel="stylesheet" href="sidebar_group_style.css">
+  <style>
+    /* kept inline small navbar styles (same as original) */
+    .navbar { display:flex; align-items:center; justify-content:space-between; background-color:var(--nav-bg); color:var(--nav-text); padding:16px 5%; box-shadow:0 2px 5px rgba(0,0,0,.1); }
+    .navbar-left { display:flex; align-items:center; gap:10px; }
+    #hamburger-btn { background:transparent; border:none; color:white; cursor:pointer; padding:6px; }
+    #hamburger-btn .material-icons-outlined { font-size:26px; }
+    .alert-success, .alert-error { padding:15px; border-radius:8px; margin-bottom:20px; }
+    .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-left">
+      <button id="hamburger-btn" aria-label="Toggle Sidebar">
+        <span class="material-icons-outlined">menu</span>
+      </button>
+      <!-- CHANGED: user_name is hardcoded to "Aiko" in the static HTML.
+           If you implement auth, you can replace this with dynamic username. -->
+      <h1>Welcome, Aiko!</h1>
+    </div>
+
+    <div class="navbar-right">
+      <a href="dashboard.html" class="nav-link">
+        <span class="material-icons-outlined">dashboard</span><span>Dashboard</span>
+      </a>
+      <a href="transaction.html" class="nav-link">
+        <span class="material-icons-outlined">receipt_long</span><span>Transaction</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- CHANGED: sidebar.php removed (server include not available on S3). 
+       You can create a static sidebar.html and load it via fetch/JS if needed. -->
+  <div id="sidebar-placeholder"><!-- Sidebar will be static file or injected by sidebar_script.js --></div>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <div class="income-container">
+    <!-- Success & error alerts will be injected by JS after API responses -->
+    <div id="alerts"></div>
+
+    <div class="tab-header">
+      <a href="dashboard.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
+      <div class="tab-container">
+        <a href="income_form.html" class="tab active">Income</a>
+        <a href="expense_form.html" class="tab">Expense</a>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <!-- CHANGED: method kept default but submission handled by JS (fetch). 
+           Keep name attributes for compatibility with server-side if needed. -->
+      <form id="incomeForm">
+        <input type="hidden" name="action" value="add_income">
+        <div class="form-group">
+          <label class="form-label">Income Name</label>
+          <input type="text" class="form-input" id="incomeName" name="income_name" placeholder="Enter income name" required>
+        </div>
+
+        <div class="form-group date-input">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input" id="incomeDate" name="income_date" value="" required>
+        </div>
+
+        <div class="form-group total-amount-field">
+          <label class="form-label">Amount</label>
+          <input type="text" class="form-input" id="totalAmount" placeholder="Rp 0" required>
+          <input type="hidden" name="amount" id="amountHidden">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select class="form-select" id="paymentMethod" name="payment_method" required>
+            <option value="Cash">Cash</option>
+            <option value="BCA">BCA</option>
+            <option value="BRI">BRI</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Group</label>
+          <div id="groupsContainer" class="checkbox-group">
+            <!-- CHANGED: groups will be rendered here by income_script.js using API /api/get_groups.php -->
+            <div>Loading groups...</div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Add</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="income_script.js"></script>
+  <script src="sidebar_script.js"></script>
+</body>
+</html>

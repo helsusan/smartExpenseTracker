@@ -1,0 +1,9 @@
+{
+  "name": "expense-api",
+  "version": "1.0.0",
+  "description": "Smart Expense Tracker API for Lambda",
+  "main": "index.js",
+  "dependencies": {
+    "mysql2": "^3.3.1"
+  }
+}
