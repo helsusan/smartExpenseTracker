@@ -1,0 +1,136 @@
+<!-- FILE: create_group.html
+     CHANGED: Versi static (tanpa PHP). Logic kirim data pakai create_group_script.js ke API Lambda.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Group - Smart Expense Tracker</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="sidebar_group_style.css">
+
+  <style>
+    .navbar {
+      display:flex; align-items:center; justify-content:space-between;
+      background-color:var(--nav-bg); color:var(--nav-text);
+      padding:16px 5%; box-shadow:0 2px 5px rgba(0,0,0,.1);
+    }
+    .navbar-left { display:flex; align-items:center; gap:10px; }
+    #hamburger-btn {
+      background:transparent; border:none; color:white; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; padding:6px;
+    }
+    #hamburger-btn .material-icons-outlined { font-size:26px; }
+
+    .alert-success, .alert-error {
+      padding:15px; border-radius:8px; margin-bottom:20px;
+    }
+    .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .alert-error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+
+    .container {
+      max-width:800px; margin:40px auto; font-family:'Poppins',sans-serif;
+    }
+    .form-group { margin-bottom:20px; }
+    .form-group label {
+      display:block; font-weight:600; margin-bottom:8px;
+    }
+    .form-group input, .form-group select {
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ddd;
+    }
+    .invite-wrapper { display:flex; gap:10px; }
+    .invite-wrapper input { flex:1; }
+    .participants-list {
+      margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .participant-pill {
+      background:#e0f7fa; padding:6px 10px; border-radius:999px; font-size:13px;
+    }
+    .participant-pill button {
+      border:none; background:transparent; margin-left:6px; cursor:pointer;
+      font-size:12px; color:#777;
+    }
+    .submit-btn {
+      padding:12px 20px; border-radius:25px; border:2px solid #1a5557;
+      background:white; color:#1a5557; font-weight:600; cursor:pointer;
+    }
+    .submit-btn:hover { background:#1a5557; color:white; }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="navbar-left">
+    <button id="hamburger-btn" aria-label="Toggle Sidebar">
+      <span class="material-icons-outlined">menu</span>
+    </button>
+    <!-- CHANGED: sebelumnya pakai PHP; sekarang hardcode / nanti bisa di-set dari JS -->
+    <h1 id="welcomeName">Welcome, Aiko!</h1>
+  </div>
+
+  <div class="navbar-right">
+    <a href="dashboard.html" class="nav-link">
+      <span class="material-icons-outlined">dashboard</span>
+      <span>Dashboard</span>
+    </a>
+    <a href="transaction.html" class="nav-link">
+      <span class="material-icons-outlined">receipt_long</span>
+      <span>Transaction</span>
+    </a>
+  </div>
+</header>
+
+<!-- CHANGED: sidebar.php nggak bisa di-include; asumsi akan di-handle oleh sidebar_script.js -->
+<div id="sidebar-placeholder"></div>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<main class="container">
+  <div id="alerts"></div>
+
+  <!-- CHANGED: form tidak lagi submit ke PHP, tapi di-handle JS (fetch ke API) -->
+  <form id="createGroupForm" novalidate>
+    <div class="form-group">
+      <label for="group-name">GROUP NAME</label>
+      <input type="text" id="group-name" name="group_name" placeholder="e.g. Family Budget" required>
+    </div>
+
+    <div class="form-group">
+      <label for="group-type">GROUP TYPE</label>
+      <select id="group-type" name="group_type" required>
+        <option value="One Time">One Time</option>
+        <option value="Regular">Regular</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="group-budget">GROUP BUDGET</label>
+      <input type="number" id="group-budget" name="group_budget" placeholder="Enter group budget (Rp)" step="1000" min="0">
+    </div>
+
+    <div class="form-group">
+      <label for="invite-email">INVITE PARTICIPANT</label>
+      <div class="invite-wrapper">
+        <input type="email" id="invite-email" placeholder="Type user email..." list="user-emails">
+        <button type="button" id="add-participant-btn">Add</button>
+      </div>
+
+      <datalist id="user-emails">
+        <!-- CHANGED: daftar user akan diisi oleh create_group_script.js dari API /users/list -->
+      </datalist>
+
+      <div id="participants-list" class="participants-list"></div>
+      <input type="hidden" id="participants-hidden-input" name="participants">
+    </div>
+
+    <button type="submit" class="submit-btn">Create Group</button>
+  </form>
+</main>
+
+<script src="sidebar_script.js"></script>
+<script src="create_group_script.js"></script>
+
+</body>
+</html>

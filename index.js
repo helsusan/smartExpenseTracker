@@ -1,22 +1,19 @@
-// FILE: index.js
-// CHANGED: Single Lambda to handle /groups/list, /categories/search, /expense/add
+// index.js
 const mysql = require('mysql2/promise');
 
 let pool = null;
 
 async function getPool() {
   if (pool) return pool;
-  const config = {
+  pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 5,
-    queueLimit: 0,
-    // optionally set timezone etc
-  };
-  pool = mysql.createPool(config);
+    queueLimit: 0
+  });
   return pool;
 }
 
@@ -25,7 +22,7 @@ function buildResponse(statusCode, body) {
     statusCode,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*', // CHANGED: use specific origin in prod
+      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type'
     },
@@ -34,128 +31,274 @@ function buildResponse(statusCode, body) {
 }
 
 exports.handler = async (event) => {
-  // Handle preflight
+  // OPTIONS CORS
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
-      body: ''
-    };
+    return buildResponse(204, {});
   }
 
   const path = event.path || '/';
+  const method = event.httpMethod;
+
+  let body = {};
+  try { body = JSON.parse(event.body || '{}'); }
+  catch(e){}
+
   try {
     const pool = await getPool();
 
-    // ROUTING: YOU MAY USE BASE PATH /prod in API Gateway; we match suffixes
-    if (path.endsWith('/groups/list') && event.httpMethod === 'GET') {
-      // GET /groups/list?user_id=3
-      const user_id = (event.queryStringParameters && parseInt(event.queryStringParameters.user_id)) || 0;
-      if (!user_id) return buildResponse(200, []);
+    // =============================
+    // AUTH ROUTES
+    // =============================
+
+    // POST /api/auth/login
+    if (path.endsWith('/api/auth/login') && method === 'POST') {
+      const { email, password } = body;
+
       const [rows] = await pool.execute(
-        `SELECT g.id, g.name FROM \`groups\` g
-         INNER JOIN group_members gm ON g.id = gm.group_id
-         WHERE gm.user_id = ? AND gm.status = 'active'`, [user_id]);
+        'SELECT * FROM users WHERE email = ? LIMIT 1',
+        [email]
+      );
+
+      if (!rows.length || rows[0].password !== password) {
+        return buildResponse(400, {
+          success: false,
+          message: 'Invalid credentials'
+        });
+      }
+
+      const user = rows[0];
+      return buildResponse(200, {
+        success: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+    }
+
+    // POST /api/auth/signup
+    if (path.endsWith('/api/auth/signup') && method === 'POST') {
+      const { name, email, password, budget } = body;
+
+      const [check] = await pool.execute(
+        'SELECT id FROM users WHERE email = ?',
+        [email]
+      );
+
+      if (check.length > 0) {
+        return buildResponse(400, {
+          success: false,
+          message: 'Email already registered'
+        });
+      }
+
+      await pool.execute(
+        'INSERT INTO users (name,email,password,budget,created_at) VALUES (?,?,?,?,NOW())',
+        [name, email, password, budget]
+      );
+
+      return buildResponse(200, {
+        success: true,
+        message: 'Account created'
+      });
+    }
+
+    // =============================
+    // USERS ROUTE
+    // =============================
+    if (path.endsWith('/api/users/list') && method === 'GET') {
+      const ex = event.queryStringParameters &&
+        parseInt(event.queryStringParameters.exclude_user_id);
+
+      let rows;
+      if (ex) {
+        [rows] = await pool.execute(
+          'SELECT id,name,email FROM users WHERE id != ?',
+          [ex]
+        );
+      } else {
+        [rows] = await pool.execute(
+          'SELECT id,name,email FROM users'
+        );
+      }
+
       return buildResponse(200, rows);
     }
 
-    if (path.endsWith('/categories/search') && event.httpMethod === 'POST') {
-      // POST { search, user_id }
-      const payload = JSON.parse(event.body || '{}');
-      const search = payload.search ? `%${payload.search}%` : '%';
-      const user_id = payload.user_id || 0;
-      // Query categories (public or user-specific)
+    // =============================
+    // GROUP LIST
+    // =============================
+    if (path.endsWith('/api/groups/list') && method === 'GET') {
+      const user_id = event.queryStringParameters &&
+        parseInt(event.queryStringParameters.user_id);
+
+      if (!user_id) return buildResponse(200, []);
+
       const [rows] = await pool.execute(
-        `SELECT * FROM categories WHERE (user_id IS NULL OR user_id = ?) AND name LIKE ? ORDER BY name LIMIT 10`,
-        [user_id, search]
+        `SELECT g.id, g.name FROM \`groups\` g
+         INNER JOIN group_members gm ON g.id = gm.group_id
+         WHERE gm.user_id = ? AND gm.status = 'active'`,
+        [user_id]
       );
-      return buildResponse(200, { success: true, categories: rows });
+      return buildResponse(200, rows);
     }
 
-    if (path.endsWith('/expense/add') && event.httpMethod === 'POST') {
-      // Add expense: parse JSON body and insert transaction, items, summary, groups
-      const data = JSON.parse(event.body || '{}');
+    // =============================
+    // GROUP CREATE
+    // =============================
+    if (path.endsWith('/api/groups/create') && method === 'POST') {
+      const { creator_id, group_name, group_type, group_budget, participants } = body;
 
-      // Basic validation
-      const user_id = parseInt(data.user_id) || 0;
-      const name = (data.expense_name || '').trim();
-      const amount = parseFloat(data.grand_total) || 0;
-      const date = data.transaction_date || null;
-      if (!user_id || !name || !date || amount <= 0) {
-        return buildResponse(400, { success: false, message: 'Missing required fields' });
+      if (!creator_id || !group_name || !group_type) {
+        return buildResponse(400, {
+          success: false,
+          message: 'Missing required fields'
+        });
       }
 
       const conn = await pool.getConnection();
       try {
         await conn.beginTransaction();
 
-        // Handle category: create if provided and not exists
-        let category_id = null;
-        if (data.category_name && data.category_name.trim() !== '') {
-          const catName = data.category_name.trim();
-          const [existing] = await conn.execute(`SELECT id FROM categories WHERE name = ? AND (user_id IS NULL OR user_id = ?) LIMIT 1`, [catName, user_id]);
-          if (existing && existing.length > 0) {
-            category_id = existing[0].id;
-          } else {
-            const [r] = await conn.execute(`INSERT INTO categories (user_id, name) VALUES (?, ?)`, [user_id, catName]);
-            category_id = r.insertId;
-          }
-        }
-
-        // insert transaction
-        const [tRes] = await conn.execute(
-          `INSERT INTO transactions (user_id, category_id, type, name, amount, date, payment_method, created_at, updated_at) VALUES (?, ?, 'Expense', ?, ?, ?, ?, NOW(), NOW())`,
-          [user_id, category_id, name, amount, date, data.payment_method || null]
+        const [gRes] = await conn.execute(
+          `INSERT INTO \`groups\`
+          (name, created_by, type, budget, created_at)
+          VALUES (?,?,?,?,NOW())`,
+          [group_name, creator_id, group_type, group_budget]
         );
-        const transaction_id = tRes.insertId;
 
-        // insert items
-        if (Array.isArray(data.items) && data.items.length > 0) {
-          const itemStmt = `INSERT INTO transaction_items (transaction_id, item_name, quantity, unit_price, subtotal, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
-          for (const item of data.items) {
-            const itemName = item.name || '';
-            const quantity = parseFloat(item.quantity) || 0;
-            const price = parseFloat(item.price) || 0;
-            if (!itemName || quantity <= 0) continue;
-            const subtotal = quantity * price;
-            await conn.execute(itemStmt, [transaction_id, itemName, quantity, price, subtotal]);
-          }
-        }
+        const new_group_id = gRes.insertId;
 
-        // insert summary
         await conn.execute(
-          `INSERT INTO transaction_summary (transaction_id, subtotal, tax, service_charge, discount, grand_total, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-          [transaction_id, parseFloat(data.subtotal) || 0, parseFloat(data.tax) || 0, parseFloat(data.service_charge) || 0, parseFloat(data.discount) || 0, amount]
+          `INSERT INTO group_members
+            (group_id,user_id,role,status,joined_at)
+           VALUES (?,?, 'Admin','Active',NOW())`,
+          [new_group_id, creator_id]
         );
 
-        // insert groups
-        if (Array.isArray(data.groups) && data.groups.length > 0) {
-          const gStmt = `INSERT INTO transaction_groups (transaction_id, group_id, added_at, updated_at) VALUES (?, ?, NOW(), NOW())`;
-          for (const g of data.groups) {
-            await conn.execute(gStmt, [transaction_id, parseInt(g)]);
+        if (Array.isArray(participants)) {
+          const findUser = 'SELECT id FROM users WHERE email = ? LIMIT 1';
+          const addMember = `INSERT INTO group_members
+            (group_id,user_id,role,status,joined_at)
+            VALUES (?,?, 'Member','Active',NOW())`;
+
+          for (const email of participants) {
+            const [u] = await conn.execute(findUser, [email]);
+            if (u.length > 0) {
+              await conn.execute(addMember, [new_group_id, u[0].id]);
+            }
           }
         }
 
         await conn.commit();
         conn.release();
-        return buildResponse(200, { success: true, transaction_id });
+        return buildResponse(200, { success: true, group_id: new_group_id });
+
       } catch (err) {
         await conn.rollback();
         conn.release();
-        console.error('DB error', err);
-        return buildResponse(500, { success: false, message: err.message });
+        return buildResponse(500, { success:false, message: err.message });
       }
     }
 
-    // default: not found
+    // =============================
+    // CATEGORY SEARCH
+    // =============================
+    if (path.endsWith('/api/categories/search') && method === 'POST') {
+      const search = body.search ? `%${body.search}%` : '%';
+      const user_id = body.user_id || 0;
+
+      const [rows] = await pool.execute(
+        `SELECT * FROM categories
+         WHERE (user_id IS NULL OR user_id = ?)
+         AND name LIKE ? ORDER BY name LIMIT 10`,
+        [user_id, search]
+      );
+      return buildResponse(200, { success: true, categories: rows });
+    }
+
+    // =============================
+    // ADD EXPENSE
+    // =============================
+    if (path.endsWith('/api/expense/add') && method === 'POST') {
+      const data = body;
+      const user_id = parseInt(data.user_id);
+
+      if (!user_id || !data.expense_name) {
+        return buildResponse(400, {
+          success: false,
+          message: 'Missing required fields'
+        });
+      }
+
+      const conn = await pool.getConnection();
+      try {
+        await conn.beginTransaction();
+
+        let category_id = null;
+
+        if (data.category_name?.trim()) {
+          const [row] = await conn.execute(
+            `SELECT id FROM categories WHERE name=? AND (user_id IS NULL OR user_id=?) LIMIT 1`,
+            [data.category_name, user_id]
+          );
+          if (row.length) {
+            category_id = row[0].id;
+          } else {
+            const [r] = await conn.execute(
+              `INSERT INTO categories (user_id,name) VALUES (?,?)`,
+              [user_id, data.category_name]
+            );
+            category_id = r.insertId;
+          }
+        }
+
+        const [t] = await conn.execute(
+          `INSERT INTO transactions
+            (user_id,category_id,type,name,amount,date,payment_method,created_at,updated_at)
+           VALUES (?,?, 'Expense',?,?,?,?,NOW(),NOW())`,
+          [
+            user_id,
+            category_id,
+            data.expense_name,
+            data.grand_total,
+            data.transaction_date,
+            data.payment_method
+          ]
+        );
+
+        const tId = t.insertId;
+
+        await conn.execute(
+          `INSERT INTO transaction_summary
+          (transaction_id,subtotal,tax,service_charge,discount,grand_total,created_at,updated_at)
+           VALUES (?,?,?,?,?,?,NOW(),NOW())`,
+          [
+            tId,
+            data.subtotal,
+            data.tax,
+            data.service_charge,
+            data.discount,
+            data.grand_total
+          ]
+        );
+
+        await conn.commit();
+        conn.release();
+
+        return buildResponse(200, { success:true, transaction_id: tId });
+
+      } catch (err) {
+        await conn.rollback();
+        conn.release();
+        return buildResponse(500, { success:false, message: err.message });
+      }
+    }
+
     return buildResponse(404, { message: 'Not found' });
 
   } catch (err) {
-    console.error('Handler error', err);
     return buildResponse(500, { message: err.message });
   }
 };
