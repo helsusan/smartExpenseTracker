@@ -53,7 +53,7 @@ async function loadDashboard() {
   }
 
   // Build URL
-  const url = `${API_BASE_URL}/dashboard?userId=${encodeURIComponent(userId)}&month=${String(month).padStart(2,'0')}&year=${year}`;
+  const url = `${"https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod"}/dashboard?userId=${encodeURIComponent(userId)}&month=${String(month).padStart(2,'0')}&year=${year}`;
 
   try {
     const res = await fetch(url, { method: 'GET' });
