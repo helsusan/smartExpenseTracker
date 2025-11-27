@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://REPLACE_WITH_YOUR_API.execute-api.ap-southeast-1.amazonaws.com/prod";
+const API_BASE_URL = "https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod";
 
 function moveEyes(event) {
     const pupils = document.querySelectorAll('.pupil');

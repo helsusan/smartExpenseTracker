@@ -1,0 +1,10 @@
+{
+  "name": "auth-login",
+  "version": "1.0.0",
+  "description": "Login authentication Lambda for Smart Expense Tracker",
+  "main": "authLogin.js",
+  "type": "module",
+  "dependencies": {
+    "mysql2": "^3.3.1"
+  }
+}

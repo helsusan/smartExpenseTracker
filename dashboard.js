@@ -10,6 +10,12 @@ function formatRupiah(num) {
 
 function el(id) { return document.getElementById(id); }
 
+const USER_ID = localStorage.getItem("user_id");
+
+if (!USER_ID) {
+  window.location.href = "index.html";
+}
+
 // Month picker init
 (function initDatePicker() {
   const defaultDate = new Date();
