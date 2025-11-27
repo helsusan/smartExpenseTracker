@@ -1,0 +1,9 @@
+{
+  "name": "transactions-lambda",
+  "version": "1.0.0",
+  "description": "Smart Expense Tracker - transactions API for Lambda",
+  "main": "getTransactions.js",
+  "dependencies": {
+    "mysql2": "^3.3.1"
+  }
+}

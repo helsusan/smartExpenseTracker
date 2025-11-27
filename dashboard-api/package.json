@@ -1,0 +1,12 @@
+{
+  "name": "smart-expense-lambda",
+  "version": "1.0.0",
+  "description": "Lambda functions for Smart Expense Tracker",
+  "main": "getDashboardData.js",
+  "scripts": {
+    "start": "node getDashboardData.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.3.0"
+  }
+}
