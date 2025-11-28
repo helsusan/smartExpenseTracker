@@ -1,6 +1,13 @@
 /* ===== CONFIG ===== */
-const API_BASE_URL = 'https://REPLACE_WITH_YOUR_API.execute-api.ap-southeast-1.amazonaws.com/prod';
-const CURRENT_USER_ID = 3; // hardcoded, sama seperti sebelumnya
+const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+
+// Ambil user ID dari localStorage (user yang login)
+const USER_ID = localStorage.getItem("user_id");
+
+/* Redirect kalau belum login */
+if (!USER_ID) {
+  window.location.href = "login.html";
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const sidebar = document.getElementById('sidebar');
@@ -35,7 +42,7 @@ async function loadGroups() {
   ul.innerHTML = '<li class="loading-message">Loading...</li>';
 
   try {
-    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${CURRENT_USER_ID}`);
+    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${USER_ID}`);
     const groups = await res.json();
 
     ul.innerHTML = '';
