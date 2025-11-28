@@ -2,7 +2,7 @@
 const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
 
 // Ambil user ID dari localStorage (user yang login)
-const USER_ID = localStorage.getItem("user_id");
+var USER_ID = localStorage.getItem("user_id");
 
 /* Redirect kalau belum login */
 if (!USER_ID) {

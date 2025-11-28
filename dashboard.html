@@ -131,6 +131,15 @@
   </script>
 
   <script src="dashboard.js"></script>
+
+  <script>
+    fetch("sidebar.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("sidebar-placeholder").innerHTML = html;
+      });
+  </script>
+
   <script src="sidebar_script.js"></script>
 </body>
 </html>
