@@ -1,44 +1,71 @@
 /* ===== CONFIG ===== */
 const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
 
-// Ambil user ID dari localStorage (user yang login)
+// Ambil user dari localStorage
 var SIDEBAR_USER_ID = localStorage.getItem("user_id");
 
-/* Redirect kalau belum login */
 if (!SIDEBAR_USER_ID) {
   window.location.href = "login.html";
 }
 
+/* Helper: tunggu sampai elemen muncul */
+function waitForElement(selector, timeout = 5000) {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      const el = document.querySelector(selector);
+      if (el) {
+        clearInterval(interval);
+        resolve(el);
+      }
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      reject("Timeout waiting for element: " + selector);
+    }, timeout);
+  });
+}
+
+
+/* Setelah DOM ready + sidebar sudah dimasukkan ke DOM */
 document.addEventListener('DOMContentLoaded', () => {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  const toggleBtn = document.getElementById('toggle-btn') || document.getElementById('hamburger-btn');
-  const toggleIcon = toggleBtn ? toggleBtn.querySelector('.material-icons, .material-icons-outlined') : null;
-
-  // ======== SIDEBAR TOGGLE ==========
-  function toggleSidebar() {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('open');
-
-    if (toggleIcon) {
-      toggleIcon.textContent = sidebar.classList.contains('open') ? 'close' : 'menu';
-    }
-  }
-
-  if (toggleBtn && sidebar && overlay) {
-    toggleBtn.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
-  }
-
-  // ========== LOAD GROUP LIST FROM API ===========
-  loadGroups();
+  waitForElement('#sidebar').then(() => {
+    initSidebar();      // jalankan toggle + group loading
+    loadGroups();       // load groups setelah elemen ada
+  }).catch(err => console.error(err));
 });
 
-/* =======================================
-   Fetch user groups from API Gateway
-=======================================*/
+
+function initSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const toggleBtn = document.getElementById('hamburger-btn');
+
+  if (!sidebar || !overlay || !toggleBtn) {
+    console.error("Sidebar elements missing!");
+    return;
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  });
+
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  });
+}
+
+
+/* Load group list */
 async function loadGroups() {
   const ul = document.getElementById('groupList');
+  if (!ul) {
+    console.error("groupList not found!");
+    return;
+  }
+
   ul.innerHTML = '<li class="loading-message">Loading...</li>';
 
   try {
@@ -48,10 +75,7 @@ async function loadGroups() {
     ul.innerHTML = '';
 
     if (!groups.length) {
-      ul.innerHTML = `
-        <li style="padding:10px;opacity:.6;font-size:.9rem;">
-          No groups yet.
-        </li>`;
+      ul.innerHTML = `<li style="padding:10px;opacity:.6;font-size:.9rem;">No groups yet.</li>`;
       return;
     }
 
@@ -66,6 +90,7 @@ async function loadGroups() {
     });
 
   } catch (err) {
+    console.error(err);
     ul.innerHTML = '<li>Error loading groups</li>';
   }
 }

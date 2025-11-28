@@ -134,14 +134,24 @@
   <script src="dashboard.js"></script>
 
   <script>
+    // Load sidebar HTML, inject inside #sidebar-placeholder
     fetch("sidebar.html")
-      .then(r => r.text())
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load sidebar.html');
+        return r.text();
+      })
       .then(html => {
         document.getElementById("sidebar-placeholder").innerHTML =
           `<div class="sidebar-root">${html}</div>`;
+  
+        // Load sidebar JS AFTER sidebar is inside the DOM
+        const script = document.createElement('script');
+        script.src = 'sidebar_script.js';
+        document.body.appendChild(script);
+      })
+      .catch(err => {
+        console.error('Error loading sidebar:', err);
       });
-  </script>
-
-  <script src="sidebar_script.js"></script>
+  </script>  
 </body>
 </html>
