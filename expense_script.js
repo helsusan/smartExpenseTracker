@@ -330,7 +330,7 @@ async function pollScanResult(key, attempts = 0) {
 
     try {
         // Panggil endpoint baru kita
-        const res = await fetch(`${API_BASE_URL}/check-scan?key=${key}`);
+        const res = await fetch(`${API_BASE_URL}/upload/check-scan?key=${key}`);
         
         if (res.status === 200) {
             const data = await res.json();
