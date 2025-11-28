@@ -36,6 +36,7 @@ const grandTotalInput = document.getElementById('grandTotalInput');
 const taxInput = document.getElementById('tax');
 const serviceInput = document.getElementById('service');
 const discountInput = document.getElementById('discount');
+const invoiceInput = document.getElementById('invoiceUpload');
 
 // Utils (currency)
 function formatRupiah(value) {
