@@ -282,43 +282,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-// Di dalam event listener 'change' input file:
-
+// Listener saat user memilih gambar struk
 invoiceInput.addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    document.querySelector('.upload-text').textContent = "Uploading & Scanning...";
+    // Ubah teks agar user tahu sedang proses
+    document.querySelector('.upload-text').textContent = "⏳ Uploading & Scanning...";
 
-    // 1. Convert to Base64
     const reader = new FileReader();
     reader.readAsDataURL(file);
     
     reader.onload = async function() {
-        const base64String = reader.result; // Full string data:image...
+        const base64String = reader.result; 
 
         try {
-            // 2. Upload ke S3 via API Gateway
+            // 1. Upload ke S3 via API Gateway
             const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    image: base64String,
-                    filename: file.name 
-                })
+                body: JSON.stringify({ image: base64String, filename: file.name })
             });
             
             const uploadData = await uploadRes.json();
             if (!uploadData.success) throw new Error("Upload failed");
 
-            console.log("Upload success, waiting for CloudShell...", uploadData.key);
-            
-            // 3. Polling (Cek berulang kali) Hasil di S3 Outbox
-            // Nama file hasil disesuaikan dengan logika worker.py
+            // 2. Polling: Tanya ke API apakah hasil scan sudah siap
+            // Nama file hasil diprediksi berdasarkan nama file upload
             const resultKey = uploadData.key.replace('inbox/', 'outbox/') + ".json";
-            const resultUrl = `https://smart-expense-receipts.s3.us-east-1.amazonaws.com/${resultKey}`;
-            
-            pollResult(resultUrl);
+            pollScanResult(resultKey);
 
         } catch (err) {
             console.error(err);
@@ -328,32 +320,64 @@ invoiceInput.addEventListener('change', async function(e) {
     };
 });
 
-// Fungsi Polling (Cek file JSON tiap 1 detik)
-async function pollResult(url, attempts = 0) {
-    if (attempts > 10) { // Timeout setelah 10 detik
-        alert("Scan timeout. Pastikan script CloudShell berjalan!");
+// Fungsi Polling ke API Gateway
+async function pollScanResult(key, attempts = 0) {
+    if (attempts > 15) { // Timeout setelah 15 detik
+        alert("Scan timeout. Silakan isi manual.");
         document.querySelector('.upload-text').textContent = "➕ Add Invoice";
         return;
     }
 
     try {
-        const res = await fetch(url);
-        if (res.ok) {
+        // Panggil endpoint baru kita
+        const res = await fetch(`${API_BASE_URL}/check-scan?key=${key}`);
+        
+        if (res.status === 200) {
             const data = await res.json();
             
-            // 4. Autofill Form
-            document.getElementById('expenseName').value = data.vendor;
-            document.getElementById('totalAmount').value = formatRupiah(data.total);
-            // Trigger perhitungan
-            calculateTotal(); 
+            // === AUTOFILL FORM ===
+            // 1. Isi Vendor & Total
+            if(data.vendor) document.getElementById('expenseName').value = data.vendor;
+            if(data.total) document.getElementById('grandTotalInput').value = data.total;
             
-            alert("Scan Berhasil!");
+            // 2. Isi Tanggal (Jika format cocok, kalau tidak biarkan hari ini)
+            // Textract kadang return '01-NOV-2025', input date butuh '2025-11-01'
+            // Anda bisa tambah logic parsing tanggal di sini jika perlu.
+
+            // 3. Isi Tabel Items
+            if (data.items && data.items.length > 0) {
+                // Kosongkan tabel lama dulu (kecuali header)
+                const tbody = document.querySelector('#itemsTable tbody');
+                tbody.innerHTML = ''; 
+                itemCounter = 0; // Reset counter
+
+                // Loop item dari hasil scan
+                data.items.forEach(item => {
+                    addItemRow(); // Buat baris baru
+                    
+                    // Ambil baris terakhir yang baru dibuat
+                    const lastRow = tbody.lastElementChild;
+                    
+                    // Isi inputannya
+                    lastRow.querySelector('.item-name').value = item.name;
+                    lastRow.querySelector('.item-quantity').value = item.qty;
+                    // Format harga ke Rupiah
+                    lastRow.querySelector('.item-price').value = formatRupiah(item.price);
+                });
+                
+                // Hitung ulang subtotal
+                calculateSubtotal();
+            }
+
+            alert("Struk berhasil dibaca! Silakan cek dan koreksi datanya.");
             document.querySelector('.upload-text').textContent = "✅ Scanned";
+
         } else {
-            // Belum ada, coba lagi 1 detik kemudian
-            setTimeout(() => pollResult(url, attempts + 1), 1000);
+            // Jika 404/Processing, coba lagi 1 detik kemudian
+            setTimeout(() => pollScanResult(key, attempts + 1), 1000);
         }
     } catch (e) {
-        setTimeout(() => pollResult(url, attempts + 1), 1000);
+        console.error(e);
+        setTimeout(() => pollScanResult(key, attempts + 1), 1000);
     }
 }

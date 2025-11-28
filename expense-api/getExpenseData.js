@@ -158,9 +158,46 @@ exports.handler = async (event) => {
       }
     }
 
+    // =============================
+    // CHECK SCAN RESULT (GET /api/check-scan)
+    // =============================
+    if (path.endsWith('/api/check-scan') && method === 'GET') {
+      const key = event.queryStringParameters.key; // Nama file di folder outbox
+      const bucketName = "smart-expense-receipts"; // GANTI NAMA BUCKET ANDA
+
+      if (!key) return buildResponse(400, { message: "Missing key" });
+
+      try {
+        const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+        const s3 = new S3Client();
+
+        // Coba ambil file JSON dari S3
+        const command = new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key
+        });
+        
+        const response = await s3.send(command);
+        // Baca isi file
+        const str = await response.Body.transformToString();
+        const json = JSON.parse(str);
+
+        return buildResponse(200, json);
+
+      } catch (err) {
+        // Jika errornya "NoSuchKey", berarti file belum jadi (sedang diproses)
+        if (err.name === 'NoSuchKey') {
+            return buildResponse(404, { status: "processing", message: "File not ready yet" });
+        }
+        console.error(err);
+        return buildResponse(500, { message: err.message });
+      }
+    }
+
     return buildResponse(404, { message: 'Not found' });
 
   } catch (err) {
     return buildResponse(500, { message: err.message });
   }
 };
+
