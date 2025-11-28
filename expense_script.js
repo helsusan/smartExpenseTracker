@@ -271,3 +271,88 @@ document.addEventListener('DOMContentLoaded', function () {
   dropdownInput.addEventListener('input', () => searchCategories(dropdownInput.value));
   document.addEventListener('click', e => { if (!e.target.closest('.dropdown-container')) dropdownList.style.display = 'none'; });
 });
+
+
+
+
+
+
+
+
+
+
+// Di dalam event listener 'change' input file:
+
+invoiceInput.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    document.querySelector('.upload-text').textContent = "Uploading & Scanning...";
+
+    // 1. Convert to Base64
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    reader.onload = async function() {
+        const base64String = reader.result; // Full string data:image...
+
+        try {
+            // 2. Upload ke S3 via API Gateway
+            const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    image: base64String,
+                    filename: file.name 
+                })
+            });
+            
+            const uploadData = await uploadRes.json();
+            if (!uploadData.success) throw new Error("Upload failed");
+
+            console.log("Upload success, waiting for CloudShell...", uploadData.key);
+            
+            // 3. Polling (Cek berulang kali) Hasil di S3 Outbox
+            // Nama file hasil disesuaikan dengan logika worker.py
+            const resultKey = uploadData.key.replace('inbox/', 'outbox/') + ".json";
+            const resultUrl = `https://smart-expense-receipts.s3.us-east-1.amazonaws.com/${resultKey}`;
+            
+            pollResult(resultUrl);
+
+        } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+            document.querySelector('.upload-text').textContent = "➕ Add Invoice";
+        }
+    };
+});
+
+// Fungsi Polling (Cek file JSON tiap 1 detik)
+async function pollResult(url, attempts = 0) {
+    if (attempts > 10) { // Timeout setelah 10 detik
+        alert("Scan timeout. Pastikan script CloudShell berjalan!");
+        document.querySelector('.upload-text').textContent = "➕ Add Invoice";
+        return;
+    }
+
+    try {
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+            
+            // 4. Autofill Form
+            document.getElementById('expenseName').value = data.vendor;
+            document.getElementById('totalAmount').value = formatRupiah(data.total);
+            // Trigger perhitungan
+            calculateTotal(); 
+            
+            alert("Scan Berhasil!");
+            document.querySelector('.upload-text').textContent = "✅ Scanned";
+        } else {
+            // Belum ada, coba lagi 1 detik kemudian
+            setTimeout(() => pollResult(url, attempts + 1), 1000);
+        }
+    } catch (e) {
+        setTimeout(() => pollResult(url, attempts + 1), 1000);
+    }
+}
