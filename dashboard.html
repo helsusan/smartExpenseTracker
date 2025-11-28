@@ -30,7 +30,7 @@
   <!-- Navbar -->
   <header class="navbar">
     <div class="navbar-left">
-      <button id="hamburger-btn" aria-label="Toggle Sidebar">
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle Sidebar">
         <span class="material-icons-outlined">menu</span>
       </button>
       <h1 id="welcomeText">Welcome!</h1>
@@ -132,24 +132,36 @@
 
   <script src="dashboard.js"></script>
 
-  <script>
-    fetch("sidebar.html")
-      .then(r => r.text())
-      .then(html => {
-        // inject sidebar + overlay ke dalam placeholder
-        document.getElementById("sidebar-placeholder").innerHTML = `
-          <div class="sidebar-root">
-            ${html}
-            <div id="sidebar-overlay" class="sidebar-overlay"></div>
-          </div>
-        `;
-    
-        // jalankan sidebar_script SETELAH semua elemen tersedia
-        const script = document.createElement("script");
-        script.src = "sidebar_script.js";
-        document.body.appendChild(script);
-      })
-      .catch(err => console.error("Sidebar load error:", err));
-  </script>    
+<script>
+  fetch("sidebar.html")
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById("sidebar-placeholder").innerHTML = `
+        <div class="sidebar-root">
+          ${html}
+        </div>
+      `;
+
+      // Tambahkan overlay
+      if (!document.getElementById("sidebar-overlay")) {
+        const overlay = document.createElement("div");
+        overlay.id = "sidebar-overlay";
+        overlay.className = "sidebar-overlay";
+        document.querySelector(".sidebar-root").appendChild(overlay);
+      }
+
+      // Inject sidebar script
+      const script = document.createElement("script");
+      script.src = "sidebar_script.js";
+      script.onload = () => {
+        // PENTING: PANGGIL ULANG initSidebar SETELAH FILE TERLOAD
+        initSidebar();
+        loadGroups();
+      };
+      document.body.appendChild(script);
+    })
+    .catch(err => console.error("Sidebar load error:", err));
+</script>
+
 </body>
 </html>

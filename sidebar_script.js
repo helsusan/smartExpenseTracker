@@ -27,7 +27,7 @@ function waitForElement(selector, timeout = 5000) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  waitForElement('#sidebar').then(() => {
+  waitForElement('.sidebar').then(() => {
     setTimeout(() => {
       initSidebar();
       loadGroups();
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initSidebar() {
-  const sidebar = document.getElementById('sidebar');
+  const sidebar = document.querySelector('.sidebar');
   const overlay = document.getElementById('sidebar-overlay');
   const toggleBtn = document.getElementById('hamburger-btn');
 
@@ -55,7 +55,6 @@ function initSidebar() {
     overlay.classList.remove('open');
   });
 }
-
 
 /* Load group list */
 async function loadGroups() {
