@@ -161,7 +161,7 @@ exports.handler = async (event) => {
     // =============================
     // CHECK SCAN RESULT (GET /api/check-scan)
     // =============================
-    if (path.endsWith('/api/check-scan') && method === 'GET') {
+    if (path.endsWith('/upload/check-scan') && method === 'GET') {
       const key = event.queryStringParameters.key; // Nama file di folder outbox
       const bucketName = "smart-expense-receipts"; // GANTI NAMA BUCKET ANDA
 
