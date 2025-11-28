@@ -3,8 +3,23 @@
    IMPORTANT: Set API_BASE_URL to your API Gateway base URL (no trailing slash).
 */
 
-const API_BASE_URL = 'https://REPLACE_WITH_YOUR_API.execute-api.ap-southeast-1.amazonaws.com/prod';
-const HARDCODED_USER_ID = 3; // CHANGED: frontend supplies user_id (in production use proper auth)
+const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+
+// === PERUBAHAN: AMBIL USER ID DARI LOGIN ===
+const CURRENT_USER_ID = localStorage.getItem('user_id');
+const CURRENT_USER_NAME = localStorage.getItem('user_name');
+
+// Cek apakah user sudah login
+if (!CURRENT_USER_ID) {
+    alert("You are not logged in!");
+    window.location.href = 'login.html'; // Tendang ke halaman login
+}
+
+// Tampilkan nama user di navbar (jika elemen ada)
+const welcomeName = document.getElementById('welcomeName');
+if (welcomeName && CURRENT_USER_NAME) {
+    welcomeName.textContent = `Welcome, ${CURRENT_USER_NAME}!`;
+}
 
 let itemCounter = 1;
 let categories = [];
@@ -42,7 +57,7 @@ function parseRupiah(value) {
 async function loadGroups() {
   groupsContainer.innerHTML = 'Loading groups...';
   try {
-    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${HARDCODED_USER_ID}`, { method: 'GET' });
+    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${CURRENT_USER_ID}`, { method: 'GET' });
     if (!res.ok) throw new Error('Failed to fetch groups');
     const data = await res.json();
     renderGroups(data);
@@ -81,7 +96,7 @@ async function searchCategories(q = '') {
     const res = await fetch(`${API_BASE_URL}/categories/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ search: q, user_id: HARDCODED_USER_ID })
+      body: JSON.stringify({ search: q, user_id: parseInt(CURRENT_USER_ID) })
     });
     if (!res.ok) throw new Error('Category search failed');
     const json = await res.json();
@@ -187,7 +202,7 @@ expenseForm.addEventListener('submit', async function (e) {
   const selectedGroups = Array.from(document.querySelectorAll('input[name="groups[]"]:checked')).map(i => parseInt(i.value));
 
   const payload = {
-    user_id: HARDCODED_USER_ID,
+    user_id: parseInt(CURRENT_USER_ID),
     expense_name: document.getElementById('expenseName').value,
     transaction_date: document.getElementById('transactionDate').value,
     payment_method: document.getElementById('paymentMethod').value,

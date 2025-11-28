@@ -49,7 +49,7 @@ exports.handler = async (event) => {
     // =============================
     // GROUP LIST
     // =============================
-    if (path.endsWith('/api/groups/list') && method === 'GET') {
+    if (path.endsWith('/groups/list') && method === 'GET') {
       const user_id = event.queryStringParameters &&
         parseInt(event.queryStringParameters.user_id);
 
@@ -67,7 +67,7 @@ exports.handler = async (event) => {
     // =============================
     // CATEGORY SEARCH
     // =============================
-    if (path.endsWith('/api/categories/search') && method === 'POST') {
+    if (path.endsWith('/categories/search') && method === 'POST') {
       const search = body.search ? `%${body.search}%` : '%';
       const user_id = body.user_id || 0;
 
@@ -83,7 +83,7 @@ exports.handler = async (event) => {
     // =============================
     // ADD EXPENSE
     // =============================
-    if (path.endsWith('/api/expense/add') && method === 'POST') {
+    if (path.endsWith('/expense/add') && method === 'POST') {
       const data = body;
       const user_id = parseInt(data.user_id);
 
