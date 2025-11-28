@@ -2,10 +2,10 @@
 const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
 
 // Ambil user ID dari localStorage (user yang login)
-var USER_ID = localStorage.getItem("user_id");
+var SIDEBAR_USER_ID = localStorage.getItem("user_id");
 
 /* Redirect kalau belum login */
-if (!USER_ID) {
+if (!SIDEBAR_USER_ID) {
   window.location.href = "login.html";
 }
 
@@ -42,7 +42,7 @@ async function loadGroups() {
   ul.innerHTML = '<li class="loading-message">Loading...</li>';
 
   try {
-    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${USER_ID}`);
+    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${SIDEBAR_USER_ID}`);
     const groups = await res.json();
 
     ul.innerHTML = '';

@@ -20,6 +20,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
   <!-- Your separated CSS -->
+  <link rel="stylesheet" href="sidebar_group_style.css">
   <link rel="stylesheet" href="dashboard.css">
 
   <!-- IMPORTANT: update this if your frontend is under a subpath -->
@@ -136,7 +137,8 @@
     fetch("sidebar.html")
       .then(r => r.text())
       .then(html => {
-        document.getElementById("sidebar-placeholder").innerHTML = html;
+        document.getElementById("sidebar-placeholder").innerHTML =
+          `<div class="sidebar-root">${html}</div>`;
       });
   </script>
 
