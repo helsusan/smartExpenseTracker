@@ -1,74 +1,92 @@
-import mysql from "mysql2/promise";
+const mysql = require("mysql2/promise");
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
     try {
-        const body = JSON.parse(event.body || "{}");
+        // Parse body
+        const body = JSON.parse(event.body);
         const { email, password } = body;
 
-        if (!email || !password) {
-            return response(400, {
-                success: false,
-                message: "Email and password are required"
-            });
-        }
-
-        const connection = await mysql.createConnection({
+        // Connect ke database
+        const pool = mysql.createPool({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASS,
             database: process.env.DB_NAME
         });
 
-        const [rows] = await connection.execute(
-            "SELECT * FROM users WHERE email = ?",
+        // Query user
+        const [rows] = await pool.query(
+            "SELECT * FROM users WHERE email = ? LIMIT 1",
             [email]
         );
 
-        await connection.end();
-
-        if (rows.length === 0) {
-            return response(404, {
-                success: false,
-                message: "Email not registered"
-            });
+        // ---- USER NOT FOUND ----
+        if (!rows.length) {
+            return {
+                statusCode: 200,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true
+                },
+                body: JSON.stringify({
+                    success: false,
+                    message: "Email not found"
+                })
+            };
         }
 
         const user = rows[0];
 
-        // Password check — plain text (sesuai PHP-mu)
-        if (password !== user.password) {
-            return response(401, {
-                success: false,
-                message: "Incorrect password"
-            });
+        // ---- WRONG PASSWORD ----
+        if (user.password !== password) {
+            return {
+                statusCode: 200,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true
+                },
+                body: JSON.stringify({
+                    success: false,
+                    message: "Invalid password"
+                })
+            };
         }
 
-        return response(200, {
-            success: true,
-            message: "Login successful",
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email
-            }
-        });
+        // ---- SUCCESS ----
+        return {
+            statusCode: 200,
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true
+            },
+            body: JSON.stringify({
+                success: true,
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email
+                }
+            })
+        };
 
     } catch (err) {
-        console.log(err);
-        return response(500, {
-            success: false,
-            message: "System error occurred"
-        });
+        console.error("ERROR:", err);
+
+        // ---- SERVER ERROR ----
+        return {
+            statusCode: 500,
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": true
+            },
+            body: JSON.stringify({
+                success: false,
+                message: "Server error"
+            })
+        };
     }
 };
-
-function response(statusCode, body) {
-    return {
-        statusCode,
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify(body)
-    };
-}
