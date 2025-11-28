@@ -44,7 +44,6 @@
 
   <!-- Sidebar placeholder (optional) -->
   <div id="sidebar-placeholder"></div>
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
   <!-- Page content -->
   <main class="bg-[#FDFBEE] min-h-screen p-6">
@@ -134,24 +133,23 @@
   <script src="dashboard.js"></script>
 
   <script>
-    // Load sidebar HTML, inject inside #sidebar-placeholder
     fetch("sidebar.html")
-      .then(r => {
-        if (!r.ok) throw new Error('Failed to load sidebar.html');
-        return r.text();
-      })
+      .then(r => r.text())
       .then(html => {
-        document.getElementById("sidebar-placeholder").innerHTML =
-          `<div class="sidebar-root">${html}</div>`;
-  
-        // Load sidebar JS AFTER sidebar is inside the DOM
-        const script = document.createElement('script');
-        script.src = 'sidebar_script.js';
+        // inject sidebar + overlay ke dalam placeholder
+        document.getElementById("sidebar-placeholder").innerHTML = `
+          <div class="sidebar-root">
+            ${html}
+            <div id="sidebar-overlay" class="sidebar-overlay"></div>
+          </div>
+        `;
+    
+        // jalankan sidebar_script SETELAH semua elemen tersedia
+        const script = document.createElement("script");
+        script.src = "sidebar_script.js";
         document.body.appendChild(script);
       })
-      .catch(err => {
-        console.error('Error loading sidebar:', err);
-      });
-  </script>  
+      .catch(err => console.error("Sidebar load error:", err));
+  </script>    
 </body>
 </html>

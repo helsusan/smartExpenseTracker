@@ -26,15 +26,14 @@ function waitForElement(selector, timeout = 5000) {
   });
 }
 
-
-/* Setelah DOM ready + sidebar sudah dimasukkan ke DOM */
 document.addEventListener('DOMContentLoaded', () => {
   waitForElement('#sidebar').then(() => {
-    initSidebar();      // jalankan toggle + group loading
-    loadGroups();       // load groups setelah elemen ada
+    setTimeout(() => {
+      initSidebar();
+      loadGroups();
+    }, 50);
   }).catch(err => console.error(err));
 });
-
 
 function initSidebar() {
   const sidebar = document.getElementById('sidebar');
