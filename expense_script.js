@@ -364,6 +364,17 @@ async function pollScanResult(key, attempts = 0) {
                     // Format harga ke Rupiah
                     lastRow.querySelector('.item-price').value = formatRupiah(item.price);
                 });
+
+                // === AUTOFILL TAX / SERVICE / DISCOUNT ===
+                if (data.tax !== undefined) {
+                    taxInput.value = formatRupiah(data.tax);
+                }
+                if (data.service !== undefined) {
+                    serviceInput.value = formatRupiah(data.service);
+                }
+                if (data.discount !== undefined) {
+                    discountInput.value = formatRupiah(data.discount);
+                }
                 
                 // Hitung ulang subtotal
                 calculateSubtotal();
