@@ -146,6 +146,23 @@ exports.handler = async (event) => {
           ]
         );
 
+        if (Array.isArray(data.items)) {
+          for (const item of data.items) {
+            await conn.execute(
+              `INSERT INTO transaction_items
+                (transaction_id, item_name, quantity, unit_price, subtotal, status, created_at, updated_at)
+              VALUES (?,?,?,?,?,NULL,NOW(),NOW())`,
+              [
+                tId,
+                item.item_name,
+                item.quantity,
+                item.unit_price,
+                item.subtotal
+              ]
+            );
+          }
+        }
+
         await conn.commit();
         conn.release();
 
