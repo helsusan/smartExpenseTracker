@@ -154,10 +154,10 @@ exports.handler = async (event) => {
               VALUES (?,?,?,?,?,NULL,NOW(),NOW())`,
               [
                 tId,
-                item.item_name,
+                item.name,
                 item.quantity,
-                item.unit_price,
-                item.subtotal
+                item.price,
+                (item.quantity || 0) * (item.price || 0)
               ]
             );
           }
