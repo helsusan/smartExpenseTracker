@@ -235,27 +235,28 @@ expenseForm.addEventListener('submit', async function (e) {
     }
     const json = await res.json();
     if (json.success) {
-      showAlert('success', 'Expense added successfully!');
+      alert('Expense added successfully!'); // ← UBAH: Pakai browser alert
       expenseForm.reset();
       subtotalInput.value = 'Rp 0';
       totalAmountEl.textContent = 'Rp 0';
       grandTotalInput.value = '0';
+      document.querySelector('.upload-text').textContent = "➕ Add Invoice"; // ← TAMBAH: Reset upload text
       // reload groups/categories if needed
       loadGroups();
     } else {
-      showAlert('error', json.message || 'Failed to add expense');
+      alert(json.message || 'Failed to add expense'); // ← UBAH: Pakai browser alert
     }
   } catch (err) {
     console.error(err);
-    showAlert('error', 'Error: ' + (err.message || 'Unknown'));
+    alert('Error: ' + (err.message || 'Unknown'));
   }
 });
 
-function showAlert(type, text) {
-  const alerts = document.getElementById('alerts');
-  alerts.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
-  setTimeout(() => { if (alerts.firstChild) alerts.removeChild(alerts.firstChild); }, 5000);
-}
+// function showAlert(type, text) {
+//   const alerts = document.getElementById('alerts');
+//   alerts.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
+//   setTimeout(() => { if (alerts.firstChild) alerts.removeChild(alerts.firstChild); }, 5000);
+// }
 
 // Event listeners set-up
 document.addEventListener('DOMContentLoaded', function () {

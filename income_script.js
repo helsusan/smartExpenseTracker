@@ -77,11 +77,11 @@ async function loadGroups() {
 loadGroups();
 
 // Helper: show alert
-function showAlert(type, text) {
-    alertsContainer.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
-    // auto-hide after 6s
-    setTimeout(()=> { if (alertsContainer.firstChild) alertsContainer.removeChild(alertsContainer.firstChild); }, 6000);
-}
+// function showAlert(type, text) {
+//     alertsContainer.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
+//     // auto-hide after 6s
+//     setTimeout(()=> { if (alertsContainer.firstChild) alertsContainer.removeChild(alertsContainer.firstChild); }, 6000);
+// }
 
 // --- CHANGED: submit via fetch to API endpoint ---
 incomeForm.addEventListener('submit', async function(e) {
@@ -125,17 +125,17 @@ incomeForm.addEventListener('submit', async function(e) {
 
         const data = await res.json();
         if (data.success) {
-            showAlert('success', 'Income added successfully!');
+            alert('Income added successfully!'); // ← UBAH: Pakai browser alert
             incomeForm.reset();
             totalAmountInput.value = 'Rp 0';
             amountHidden.value = '';
             // reload groups if needed
             loadGroups();
         } else {
-            showAlert('error', data.message || 'Failed to add income');
+            alert(data.message || 'Failed to add income'); // ← UBAH: Pakai browser alert
         }
     } catch (err) {
         console.error(err);
-        showAlert('error', 'Error: ' + (err.message || 'Unknown error'));
+        alert('Error: ' + (err.message || 'Unknown error'));
     }
 });

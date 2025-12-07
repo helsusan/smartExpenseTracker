@@ -23,87 +23,115 @@
   </style>
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-left">
-      <button id="hamburger-btn" aria-label="Toggle Sidebar">
-        <span class="material-icons-outlined">menu</span>
-      </button>
-      <!-- CHANGED: user_name is hardcoded to "Aiko" in the static HTML.
-           If you implement auth, you can replace this with dynamic username. -->
-      <h1>Welcome, Aiko!</h1>
-    </div>
-
-    <div class="navbar-right">
-      <a href="dashboard.html" class="nav-link">
-        <span class="material-icons-outlined">dashboard</span><span>Dashboard</span>
-      </a>
-      <a href="transaction.html" class="nav-link">
-        <span class="material-icons-outlined">receipt_long</span><span>Transaction</span>
-      </a>
-    </div>
-  </header>
-
-  <!-- CHANGED: sidebar.php removed (server include not available on S3). 
-       You can create a static sidebar.html and load it via fetch/JS if needed. -->
-  <div id="sidebar-placeholder"><!-- Sidebar will be static file or injected by sidebar_script.js --></div>
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
-  <div class="income-container">
-    <!-- Success & error alerts will be injected by JS after API responses -->
-    <div id="alerts"></div>
-
-    <div class="tab-header">
-      <a href="dashboard.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
-      <div class="tab-container">
-        <a href="income_form.html" class="tab active">Income</a>
-        <a href="expense_form.html" class="tab">Expense</a>
+  <div class="sidebar-root">
+    
+    <header class="navbar">
+      <div class="navbar-left">
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle Sidebar">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <h1 id="welcomeName">Welcome!</h1>
       </div>
-    </div>
 
-    <div class="form-container">
-      <!-- CHANGED: method kept default but submission handled by JS (fetch). 
-           Keep name attributes for compatibility with server-side if needed. -->
-      <form id="incomeForm">
-        <input type="hidden" name="action" value="add_income">
-        <div class="form-group">
-          <label class="form-label">Income Name</label>
-          <input type="text" class="form-input" id="incomeName" name="income_name" placeholder="Enter income name" required>
+      <div class="navbar-right">
+        <a href="dashboard.html" class="nav-link">
+          <span class="material-icons-outlined">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="transaction.html" class="nav-link">
+          <span class="material-icons-outlined">receipt_long</span>
+          <span>Transaction</span>
+        </a>
+      </div>
+    </header>
+
+    <div id="sidebar-placeholder"></div>
+
+    <main class="income-container">
+      <div id="alerts"></div>
+
+      <div class="tab-header">
+        <a href="dashboard.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
+        <div class="tab-container">
+          <a href="income_form.html" class="tab active">Income</a>
+          <a href="expense_form.html" class="tab">Expense</a>
         </div>
+      </div>
 
-        <div class="form-group date-input">
-          <label class="form-label">Date</label>
-          <input type="date" class="form-input" id="incomeDate" name="income_date" value="" required>
-        </div>
-
-        <div class="form-group total-amount-field">
-          <label class="form-label">Amount</label>
-          <input type="text" class="form-input" id="totalAmount" placeholder="Rp 0" required>
-          <input type="hidden" name="amount" id="amountHidden">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Payment Method</label>
-          <select class="form-select" id="paymentMethod" name="payment_method" required>
-            <option value="Cash">Cash</option>
-            <option value="BCA">BCA</option>
-            <option value="BRI">BRI</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Group</label>
-          <div id="groupsContainer" class="checkbox-group">
-            <!-- CHANGED: groups will be rendered here by income_script.js using API /api/get_groups.php -->
-            <div>Loading groups...</div>
+      <div class="form-container">
+        <!-- CHANGED: method kept default but submission handled by JS (fetch). 
+            Keep name attributes for compatibility with server-side if needed. -->
+        <form id="incomeForm">
+          <input type="hidden" name="action" value="add_income">
+          <div class="form-group">
+            <label class="form-label">Income Name</label>
+            <input type="text" class="form-input" id="incomeName" name="income_name" placeholder="Enter income name" required>
           </div>
-        </div>
 
-        <button type="submit" class="submit-btn">Add</button>
-      </form>
-    </div>
+          <div class="form-group date-input">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-input" id="incomeDate" name="income_date" value="" required>
+          </div>
+
+          <div class="form-group total-amount-field">
+            <label class="form-label">Amount</label>
+            <input type="text" class="form-input" id="totalAmount" placeholder="Rp 0" required>
+            <input type="hidden" name="amount" id="amountHidden">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Payment Method</label>
+            <select class="form-select" id="paymentMethod" name="payment_method" required>
+              <option value="Cash">Cash</option>
+              <option value="BCA">BCA</option>
+              <option value="BRI">BRI</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Group</label>
+            <div id="groupsContainer" class="checkbox-group">
+              <!-- CHANGED: groups will be rendered here by income_script.js using API /api/get_groups.php -->
+              <div>Loading groups...</div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">Add</button>
+        </form>
+      </div>
+    </main>
   </div>
 
   <script src="income_script.js"></script>
-  <script src="sidebar_script.js"></script>
+  <script>
+    fetch("sidebar.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("sidebar-placeholder").innerHTML = `
+          <div class="sidebar-root">
+            ${html}
+          </div>
+        `;
+
+        // Tambahkan overlay
+        if (!document.getElementById("sidebar-overlay")) {
+          const overlay = document.createElement("div");
+          overlay.id = "sidebar-overlay";
+          overlay.className = "sidebar-overlay";
+          document.querySelector(".sidebar-root").appendChild(overlay);
+        }
+
+        // Inject sidebar script
+        const script = document.createElement("script");
+        script.src = "sidebar_script.js";
+        script.onload = () => {
+          // PENTING: PANGGIL ULANG initSidebar SETELAH FILE TERLOAD
+          initSidebar();
+          loadGroups();
+        };
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Sidebar load error:", err));
+  </script>
 </body>
 </html>
