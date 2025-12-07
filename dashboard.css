@@ -1,39 +1,81 @@
-/* dashboard.css - extracted styles and basic layout */
-
 /* fonts default */
-body { font-family: 'Poppins', sans-serif; margin:0; }
-
-.navbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 16px 5%; background: #063D35; color: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+body { 
+  font-family: 'Poppins', sans-serif; 
+  margin:0; 
 }
-.navbar-left { display:flex; align-items:center; gap:10px; }
-.navbar .nav-link { color: white; text-decoration:none; margin-left:12px; font-size:14px; display:inline-flex; gap:6px; align-items:center; }
 
 /* cards */
 .card {
-  display:flex; gap:16px; align-items:center; padding:16px;
-  background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  display:flex; 
+  gap:16px; 
+  align-items:center; 
+  padding:16px;
+  background:white; 
+  border-radius:12px; 
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
 }
-.card-icon { width:48px; height:48px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; }
+
+.card-icon { 
+  width:48px; 
+  height:48px; 
+  border-radius:8px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  color:white; 
+}
+
 .card-icon.bg-green { background:#0A514B; }
-.card-dark { background:#0A514B; color:white; }
+
+.card-dark { 
+  background:#0A514B; 
+  color:white; 
+}
 
 /* icons */
-.material-icons-outlined { font-size:22px; }
-
-/* date picker */
-.calendar-input {
-  display:flex; align-items:center; gap:8px; padding:6px 12px; border-radius:9999px; background:#063D35; color:white; width:260px;
+.material-icons-outlined { 
+  font-size:22px; 
 }
 
-/* charts area: container sizing handled inline in HTML using classes from earlier (tailwind-like) */
+.calendar-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;               
+  border: 1.5px solid #063D35;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  background-color: #063D35;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: 180px;
+}
 
-/* small helpers */
+/* svg size */
+.calendar-input svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* icon-center */
+.icon-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: white;
+}
+
+/* icon-balance */
+.icon-balance {
+  color: #0A514B;
+}
+
 .hidden { display:none; }
 
 /* responsive tweaks */
+/*
 @media (max-width:768px) {
   .navbar { padding:12px; }
 }
+*/

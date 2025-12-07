@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -22,82 +23,113 @@
   <!-- Icons / fonts -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
-  <!-- Local CSS -->
+  <!-- Your separated CSS -->
+  <link rel="stylesheet" href="sidebar_group_style.css">
   <link rel="stylesheet" href="transaction_style.css" />
 
+  <base href="/" />
 </head>
+
 <body>
-  <!-- Note: sidebar_script.js referenced as before (you already have it) -->
-  <header class="navbar">
-    <div class="navbar-left">
-      <button id="hamburger-btn" aria-label="Toggle Sidebar">
-        <span class="material-icons-outlined">menu</span>
-      </button>
-      <h1 id="welcomeText">Welcome!</h1>
-    </div>
-    <div class="navbar-right">
-      <a href="dashboard.html" class="nav-link">
-        <span class="material-icons-outlined">dashboard</span>
-        <span>Dashboard</span>
-      </a>
-      <a href="transaction.html" class="nav-link">
-        <span class="material-icons-outlined">receipt_long</span>
-        <span>Transaction</span>
-      </a>
-    </div>
-  </header>
+  <div class="sidebar-root">
+    <!-- Note: sidebar_script.js referenced as before (you already have it) -->
+    <header class="navbar">
+      <div class="navbar-left">
+        <button id="hamburger-btn" aria-label="Toggle Sidebar">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <h1 id="welcomeText">Welcome!</h1>
+      </div>
+      <div class="navbar-right">
+        <a href="dashboard.html" class="nav-link">
+          <span class="material-icons-outlined">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="transaction.html" class="nav-link">
+          <span class="material-icons-outlined">receipt_long</span>
+          <span>Transaction</span>
+        </a>
+      </div>
+    </header>
 
-  <!-- include your sidebar markup file if you copied it to S3 (sidebar.html) -->
-  <div id="sidebar-placeholder"></div>
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    <!-- include your sidebar markup file if you copied it to S3 (sidebar.html) -->
+    <div id="sidebar-placeholder"></div>
+    <!-- <div id="sidebar-overlay" class="sidebar-overlay"></div> -->
 
-  <main class="min-h-screen p-10">
-    <div class="flex flex-wrap justify-between items-center mb-6">
-      <div class="flex items-center gap-2 flex-wrap">
-        <div id="dateContainer" class="calendar-input">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <input id="dateRange" class="bg-transparent focus:outline-none cursor-pointer w-full" readonly />
+    <main class="min-h-screen p-10">
+      <div class="flex flex-wrap justify-between items-center mb-6">
+        <div class="flex items-center gap-2 flex-wrap">
+          <div id="dateContainer" class="calendar-input">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <input id="dateRange" class="bg-transparent focus:outline-none cursor-pointer w-full" readonly />
+          </div>
+
+          <button id="btnAll" class="btn-filter btn-active">All</button>
+          <button id="btnIncome" class="btn-filter">Income</button>
+          <button id="btnExpense" class="btn-filter">Expense</button>
         </div>
 
-        <button id="btnAll" class="btn-filter btn-active">All</button>
-        <button id="btnIncome" class="btn-filter">Income</button>
-        <button id="btnExpense" class="btn-filter">Expense</button>
+        <a href="income_form.html" class="btn-add">
+          <span class="material-icons-outlined">add</span>
+          Add
+        </a>
       </div>
 
-      <a href="income_form.html" class="btn-add">
-        <span class="material-icons-outlined">add</span>
-        Add
-      </a>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-md p-4">
-      <h2 class="font-semibold text-lg mb-3">Transaction</h2>
-      <div class="overflow-x-auto">
-        <table id="transactionTable" class="table-container w-full text-sm text-left border-t border-gray-100">
-          <thead>
-            <tr class="border-b bg-[#0A514B] text-white">
-              <th></th>
-              <th class="py-3 px-4">Date</th>
-              <th class="py-3 px-4">Type</th>
-              <th class="py-3 px-4">Name</th>
-              <th class="py-3 px-4">Amount</th>
-              <th class="py-3 px-4">Payment Method</th>
-              <th class="py-3 px-4">Category</th>
-              <th class="py-3 px-4">Group</th>
-            </tr>
-          </thead>
-          <tbody id="transactionsBody">
-            <!-- Filled dynamically by transaction_script.js -->
-          </tbody>
-        </table>
+      <div class="bg-white rounded-xl shadow-md p-4">
+        <h2 class="font-semibold text-lg mb-3">Transaction</h2>
+        <div class="overflow-x-auto">
+          <table id="transactionTable" class="table-container w-full text-sm text-left border-t border-gray-100">
+            <thead>
+              <tr class="border-b bg-[#0A514B] text-white">
+                <th></th>
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Type</th>
+                <th class="py-3 px-4">Name</th>
+                <th class="py-3 px-4">Amount</th>
+                <th class="py-3 px-4">Payment Method</th>
+                <th class="py-3 px-4">Category</th>
+                <th class="py-3 px-4">Group</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsBody">
+              <!-- Filled dynamically by transaction_script.js -->
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
-  <script src="sidebar_script.js"></script>
   <script src="transaction_script.js"></script>
+
+  <script>
+    fetch("sidebar.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("sidebar-placeholder").innerHTML = html;
+
+        // Tambahkan overlay
+        if (!document.getElementById("sidebar-overlay")) {
+          const overlay = document.createElement("div");
+          overlay.id = "sidebar-overlay";
+          overlay.className = "sidebar-overlay";
+          document.querySelector(".sidebar-root").appendChild(overlay);
+        }
+
+        // Inject sidebar script
+        const script = document.createElement("script");
+        script.src = "sidebar_script.js";
+        script.onload = () => {
+          initSidebar();
+          loadGroups();
+        };
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Sidebar load error:", err));
+  </script>
 </body>
+
 </html>

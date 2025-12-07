@@ -18,28 +18,61 @@ if (!USER_ID) {
 
 // Month picker init
 (function initDatePicker() {
-  const defaultDate = new Date();
+
+  // Ambil params dari URL
+  const params = new URLSearchParams(window.location.search);
+  const urlMonth = params.get('month');
+  const urlYear = params.get('year');
+
+  // Default: bulan & tahun hari ini
+  const now = new Date();
+  const selectedMonth = urlMonth ? urlMonth.padStart(2, '0') : String(now.getMonth() + 1).padStart(2, '0');
+  const selectedYear = urlYear || now.getFullYear();
+
   flatpickr("#datePickerInput", {
-    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "M Y" })],
-    defaultDate: `${defaultDate.getFullYear()}-${String(defaultDate.getMonth()+1).padStart(2,'0')}`,
+    plugins: [
+      new monthSelectPlugin({
+        shorthand: true,
+        dateFormat: "Y-m",
+        altFormat: "M Y"
+      })
+    ],
+
+    defaultDate: `${selectedYear}-${selectedMonth}`,
+
     onReady(selectedDates, dateStr, instance) {
-      let d = selectedDates && selectedDates[0] ? selectedDates[0] : new Date(instance.config.defaultDate + "-01");
-      const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-      if (d && !isNaN(d.getTime())) document.getElementById("datePickerInput").value = months[d.getMonth()] + " " + d.getFullYear();
+      let d = selectedDates && selectedDates[0]
+        ? selectedDates[0]
+        : new Date(`${selectedYear}-${selectedMonth}-01`);
+
+      const months = ["Januari","Februari","Maret","April","Mei","Juni",
+                "Juli","Agustus","September","Oktober","November","Desember"];
+
+      if (d && !isNaN(d.getTime())) {
+        document.getElementById("datePickerInput").value =
+          months[d.getMonth()] + " " + d.getFullYear();
+      }
     },
+
     onChange(selectedDates, dateStr) {
       if (!dateStr) return;
+
       const parts = dateStr.split("-");
       if (parts.length < 2) return;
-      const year = parts[0], month = parts[1];
-      // reload page with query params (S3 static page will keep them in URL)
+
+      const year = parts[0];
+      const month = parts[1];
+
       const url = new URL(window.location.href);
-      url.searchParams.set('month', month);
-      url.searchParams.set('year', year);
+      url.searchParams.set("month", month);
+      url.searchParams.set("year", year);
+
       window.location.href = url.toString();
     }
   });
+
 })();
+
 
 // Read month/year from URL params (fallback to today)
 function getSelectedMonthYear() {

@@ -5,7 +5,20 @@ const API_BASE = "https://{API_ID}.execute-api.{REGION}.amazonaws.com/prod"; // 
 const HARD_CODED_USER_ID = 3; // matches original behavior where user is hardcoded for testing
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('welcomeText').textContent = 'Welcome, Aiko!'; // keep simple
+     const USER_ID = localStorage.getItem("user_id");
+   const USER_NAME = localStorage.getItem("user_name");
+   
+   if (!USER_ID) {
+       // Redirect ke login jika diperlukan
+       // window.location.href = 'index.html'; 
+       console.error("User ID not found. Please login.");
+   } else {
+       const welcomeText = document.getElementById('welcomeText');
+       if (welcomeText) {
+           welcomeText.textContent = `Welcome, ${USER_NAME || 'User'}!`;
+       }
+   }
+   
 
   // Load sidebar (optional) - if you exported sidebar.html to S3, we can fetch it
   fetchSidebar();
