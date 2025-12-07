@@ -1,9 +1,9 @@
 /* FILE: income_script.js
    CHANGED: Added API calls (get groups + submit to API).
-   IMPORTANT: Set API_BASE_URL to the domain where your PHP API is hosted (https://api.example.com).
+   IMPORTANT: Set INCOME_API_URL to the domain where your PHP API is hosted (https://api.example.com).
 */
 
-const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+const INCOME_API_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
 
 const CURRENT_USER_ID = localStorage.getItem('user_id');
 const CURRENT_USER_NAME = localStorage.getItem('user_name');
@@ -49,10 +49,10 @@ totalAmountInput.addEventListener('input', function(e) {
 });
 
 // --- CHANGED: load groups from API and render checkboxes ---
-async function loadGroups() {
+async function loadFormGroups() {
     try {
         groupsContainer.innerHTML = '<div>Loading groups...</div>';
-        const res = await fetch(`${API_BASE_URL}/api/get_groups.php?user_id=${CURRENT_USER_ID}`, {
+        const res = await fetch(`${INCOME_API_URL}/api/get_groups.php?user_id=${CURRENT_USER_ID}`, {
             method: 'GET',
             credentials: 'omit' // we are using stateless API here
         });
@@ -88,7 +88,7 @@ async function loadGroups() {
 }
 
 // Call immediately
-loadGroups();
+loadFormGroups();
 
 // Helper: show alert
 // function showAlert(type, text) {
@@ -123,7 +123,7 @@ incomeForm.addEventListener('submit', async function(e) {
     };
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/add_income.php`, {
+        const res = await fetch(`${INCOME_API_URL}/api/add_income.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -144,7 +144,7 @@ incomeForm.addEventListener('submit', async function(e) {
             totalAmountInput.value = 'Rp 0';
             amountHidden.value = '';
             // reload groups if needed
-            loadGroups();
+            loadFormGroups();
         } else {
             alert(data.message || 'Failed to add income'); // ← UBAH: Pakai browser alert
         }

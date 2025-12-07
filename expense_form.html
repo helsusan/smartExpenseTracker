@@ -41,7 +41,7 @@
       <div id="alerts"></div>
 
       <div class="tab-header">
-        <a href="dashboard.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
+        <a href="transaction.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
         <div class="tab-container">
           <a href="income_form.html" class="tab">Income</a>
           <a href="expense_form.html" class="tab active">Expense</a>
@@ -126,8 +126,10 @@
     fetch("sidebar.html")
       .then(r => r.text())
       .then(html => {
+        // MASUKKAN LANGSUNG tanpa membuat .sidebar-root baru
         document.getElementById("sidebar-placeholder").innerHTML = html;
 
+        // Tambahkan overlay
         if (!document.getElementById("sidebar-overlay")) {
           const overlay = document.createElement("div");
           overlay.id = "sidebar-overlay";
@@ -135,9 +137,13 @@
           document.querySelector(".sidebar-root").appendChild(overlay);
         }
 
-        // PENTING: Load sidebar_script.js setelah sidebar HTML dimasukkan
+        // Inject sidebar script
         const script = document.createElement("script");
         script.src = "sidebar_script.js";
+        script.onload = () => {
+          initSidebar();
+          loadGroups();
+        };
         document.body.appendChild(script);
       })
       .catch(err => console.error("Sidebar load error:", err));
