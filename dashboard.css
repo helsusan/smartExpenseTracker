@@ -41,10 +41,10 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;               
-  border: 1.5px solid #063D35;
+  border: 1.5px solid #0A514B;
   border-radius: 9999px;
   padding: 6px 12px;
-  background-color: #063D35;
+  background-color: #0A514B;
   color: white;
   font-size: 0.9rem;
   cursor: pointer;
