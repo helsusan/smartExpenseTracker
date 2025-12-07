@@ -103,17 +103,13 @@
   </div>
 
   <script src="income_script.js"></script>
+  
   <script>
     fetch("sidebar.html")
       .then(r => r.text())
       .then(html => {
-        document.getElementById("sidebar-placeholder").innerHTML = `
-          <div class="sidebar-root">
-            ${html}
-          </div>
-        `;
+        document.getElementById("sidebar-placeholder").innerHTML = html;
 
-        // Tambahkan overlay
         if (!document.getElementById("sidebar-overlay")) {
           const overlay = document.createElement("div");
           overlay.id = "sidebar-overlay";
@@ -121,17 +117,12 @@
           document.querySelector(".sidebar-root").appendChild(overlay);
         }
 
-        // Inject sidebar script
         const script = document.createElement("script");
         script.src = "sidebar_script.js";
-        script.onload = () => {
-          // PENTING: PANGGIL ULANG initSidebar SETELAH FILE TERLOAD
-          initSidebar();
-          loadGroups();
-        };
         document.body.appendChild(script);
       })
       .catch(err => console.error("Sidebar load error:", err));
   </script>
+
 </body>
 </html>

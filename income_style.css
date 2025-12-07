@@ -15,14 +15,22 @@
     box-sizing: border-box;
 }
 
-body {
-    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f5f5f5;
-    display: flex; */
-    /* padding: 40px 20px;
+    display: flex;
+    padding: 40px 20px;
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-page);
-    color: var(--text-dark); */
+    color: var(--text-dark);
+} */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-page);
+    color: var(--text-dark);
 }
 
 .tab-header {
@@ -274,6 +282,11 @@ input[type="date"] {
 }
 
 /* NAVBAR STYLES - Konsisten dengan dashboard & transaction */
+.sidebar-root {
+    min-height: 100vh;
+    background-color: var(--bg-page);
+}
+
 .sidebar-root .navbar {
     display: flex;
     align-items: center;

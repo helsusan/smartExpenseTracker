@@ -121,15 +121,12 @@
   </div>
 
   <script src="expense_script.js"></script>
+
   <script>
     fetch("sidebar.html")
       .then(r => r.text())
       .then(html => {
-        document.getElementById("sidebar-placeholder").innerHTML = `
-          <div class="sidebar-root">
-            ${html}
-          </div>
-        `;
+        document.getElementById("sidebar-placeholder").innerHTML = html;
 
         if (!document.getElementById("sidebar-overlay")) {
           const overlay = document.createElement("div");
@@ -138,16 +135,13 @@
           document.querySelector(".sidebar-root").appendChild(overlay);
         }
 
-        // Inject sidebar script
+        // PENTING: Load sidebar_script.js setelah sidebar HTML dimasukkan
         const script = document.createElement("script");
         script.src = "sidebar_script.js";
-        script.onload = () => {
-          initSidebar();
-          loadGroups();
-        };
         document.body.appendChild(script);
       })
       .catch(err => console.error("Sidebar load error:", err));
   </script>
+
 </body>
 </html>

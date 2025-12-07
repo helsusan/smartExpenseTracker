@@ -15,6 +15,13 @@
     box-sizing: border-box;
 }
 
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-page);
+}
+
 input::placeholder,
 textarea::placeholder {
     font-family: 'Poppins', sans-serif;

@@ -3,8 +3,22 @@
    IMPORTANT: Set API_BASE_URL to the domain where your PHP API is hosted (https://api.example.com).
 */
 
-const API_BASE_URL = 'https://api.example.com'; // <-- CHANGED: set this to your backend domain (no trailing slash)
-const HARDCODED_USER_ID = 3; // CHANGED: previous PHP used user_id=3
+const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+
+const CURRENT_USER_ID = localStorage.getItem('user_id');
+const CURRENT_USER_NAME = localStorage.getItem('user_name');
+
+// Cek apakah user sudah login
+if (!CURRENT_USER_ID) {
+    alert("You are not logged in!");
+    window.location.href = 'login.html';
+}
+
+// Tampilkan nama user di navbar
+const welcomeName = document.getElementById('welcomeName');
+if (welcomeName && CURRENT_USER_NAME) {
+    welcomeName.textContent = `Welcome, ${CURRENT_USER_NAME}!`;
+}
 
 // Format currency input
 const totalAmountInput = document.getElementById('totalAmount');
@@ -38,7 +52,7 @@ totalAmountInput.addEventListener('input', function(e) {
 async function loadGroups() {
     try {
         groupsContainer.innerHTML = '<div>Loading groups...</div>';
-        const res = await fetch(`${API_BASE_URL}/api/get_groups.php?user_id=${HARDCODED_USER_ID}`, {
+        const res = await fetch(`${API_BASE_URL}/api/get_groups.php?user_id=${CURRENT_USER_ID}`, {
             method: 'GET',
             credentials: 'omit' // we are using stateless API here
         });
@@ -100,7 +114,7 @@ incomeForm.addEventListener('submit', async function(e) {
     formData.getAll('groups[]').forEach(g => { if (g) selectedGroups.push(parseInt(g)); });
 
     const payload = {
-        user_id: HARDCODED_USER_ID, // CHANGED: frontend sends user_id; in production you'd use real auth
+        user_id: CURRENT_USER_ID, // CHANGED: frontend sends user_id; in production you'd use real auth
         income_name: formData.get('income_name'),
         income_date: formData.get('income_date'),
         amount: amount,
