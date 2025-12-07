@@ -227,13 +227,13 @@ textarea::placeholder {
 .submit-btn:hover {
     background-color: #1a5557;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(26, 85, 87, 0.3);
+    /* transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 85, 87, 0.3); */
 }
 
-.submit-btn:active {
+/* .submit-btn:active {
     transform: translateY(0);
-}
+} */
 
 input[type="date"] {
     cursor: pointer;
@@ -258,7 +258,7 @@ input[type="date"] {
 
 .total-amount-field .form-input {
     font-size: 15px;
-    font-weight: 600;
+    font-weight: normal;
     color: black;
 }
 

@@ -52,10 +52,7 @@ totalAmountInput.addEventListener('input', function(e) {
 async function loadFormGroups() {
     try {
         groupsContainer.innerHTML = '<div>Loading groups...</div>';
-        const res = await fetch(`${INCOME_API_URL}/api/get_groups.php?user_id=${CURRENT_USER_ID}`, {
-            method: 'GET',
-            credentials: 'omit' // we are using stateless API here
-        });
+        const res = await fetch(`${INCOME_API_URL}/groups/list?user_id=${CURRENT_USER_ID}`, { method: 'GET' });
         if (!res.ok) throw new Error('Failed to fetch groups');
         const data = await res.json();
 
@@ -123,7 +120,7 @@ incomeForm.addEventListener('submit', async function(e) {
     };
 
     try {
-        const res = await fetch(`${INCOME_API_URL}/api/add_income.php`, {
+        const res = await fetch(`${INCOME_API_URL}/income/add`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
