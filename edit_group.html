@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Edit Group - Smart Expense Tracker</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+  <!-- CSS (reuse your sidebar + page CSS) -->
+  <link rel="stylesheet" href="sidebar_group_style.css">
+  <link rel="stylesheet" href="create_group_style.css">
+
+  <!-- Prevent favicon 403 -->
+  <link rel="icon" href="data:,">
+</head>
+<body>
+
+<div class="sidebar-root">
+  <div id="sidebar-placeholder"></div>
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Open sidebar">
+        <span class="material-icons-outlined">menu</span>
+      </button>
+      <h1 id="welcomeText">Welcome!</h1>
+    </div>
+
+    <div class="navbar-right">
+      <a href="dashboard.html" class="nav-link"><span class="material-icons-outlined">dashboard</span> Dashboard</a>
+      <a href="transaction.html" class="nav-link"><span class="material-icons-outlined">receipt_long</span> Transaction</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="alerts"></div>
+
+    <div class="card" style="padding:20px;">
+      <h2 id="pageTitle">Edit Group</h2>
+      <p id="groupStatusLine" style="margin:6px 0 16px;color:#555;font-size:.95rem;"></p>
+
+      <form id="editGroupForm" novalidate>
+        <div class="form-group">
+          <label for="group-name">Group Name</label>
+          <input type="text" id="group-name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="group-type">Group Type</label>
+          <input type="text" id="group-type" disabled>
+        </div>
+
+        <div class="form-group">
+          <label for="group-budget">Group Budget (Rp)</label>
+          <input type="number" id="group-budget" min="0" step="1000">
+        </div>
+
+        <div class="form-group">
+          <label>Members</label>
+          <div id="members-list" style="margin-bottom:8px;"></div>
+
+          <div style="margin-top:12px;">
+            <label for="invite-email" style="font-weight:600;font-size:.9rem;margin-bottom:6px;display:block;">Add member</label>
+
+            <div class="invite-wrapper">
+              <div class="autocomplete-wrapper" style="position:relative;flex:1;">
+                <input type="text" id="invite-email" placeholder="Click to choose user..." autocomplete="off">
+                <div id="email-dropdown" class="dropdown hidden" style="position:absolute;left:0;right:0;z-index:1200;max-height:200px;overflow:auto;border:1px solid #eee;background:#fff;"></div>
+              </div>
+              <button type="button" id="add-member-btn">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button type="submit" id="saveBtn" class="submit-btn">Save Changes</button>
+          <button type="button" id="cancelBtn" class="submit-btn" style="background:#eee;color:#333;border-color:#ddd;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="edit_group_script.js"></script>
+
+<script>
+  fetch("sidebar.html")
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById("sidebar-placeholder").innerHTML = html;
+      if (!document.getElementById("sidebar-overlay")) {
+        const overlay = document.createElement("div");
+        overlay.id = "sidebar-overlay";
+        overlay.className = "sidebar-overlay";
+        document.querySelector(".sidebar-root").appendChild(overlay);
+      }
+      const s = document.createElement("script");
+      s.src = "sidebar_script.js";
+      document.body.appendChild(s);
+    })
+    .catch(err => console.error("Sidebar load error:", err));
+</script>
+
+</body>
+</html>
