@@ -1,0 +1,246 @@
+/* =========================================
+   1. GLOBAL VARIABLES & RESET
+   ========================================= */
+   :root {
+    --nav-bg: #1a5557;
+    --nav-text: #ffffff;
+    --bg-color: #FDFBEE;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+  }
+  
+  /* =========================================
+     2. CONTAINER & FORM WRAPPER
+     ========================================= */
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  .card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+  
+  /* =========================================
+     3. FORM ELEMENTS
+     ========================================= */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #1a5557;
+  }
+  
+  /* =========================================
+     4. SUBMIT BUTTONS
+     ========================================= */
+  .submit-btn {
+    padding: 14px 24px;
+    border-radius: 25px;
+    border: 2px solid #1a5557;
+    background: white;
+    color: #1a5557;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .submit-btn:hover {
+    background: #1a5557;
+    color: white;
+    box-shadow: 0 4px 10px rgba(26, 85, 87, 0.3);
+  }
+  
+  /* =========================================
+     5. MEMBER LIST (existing members)
+     ========================================= */
+  .member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #f5fafa;
+    border: 1px solid #cde3e6;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  
+  .remove-member-btn {
+    padding: 4px 12px;
+    border: none;
+    background: #ffe5e5;
+    color: #a02323;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  
+  .remove-member-btn:hover {
+    background: #ffcccc;
+  }
+  
+  /* =========================================
+     6. ADD MEMBER INPUT + BUTTON
+     ========================================= */
+  .invite-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  
+  .invite-wrapper input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  
+  .invite-wrapper input:focus {
+    outline: none;
+    border-color: #1a5557;
+  }
+  
+  #add-member-btn {
+    padding: 0 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  
+  #add-member-btn:hover {
+    background-color: #d6d6d6;
+  }
+  
+  /* =========================================
+     7. AUTOCOMPLETE DROPDOWN EMAIL
+     ========================================= */
+  .autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  
+  #email-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 2000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .dropdown-item {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+  }
+  
+  .dropdown-item:hover {
+    background: #F3FFF5;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* =========================================
+     8. BEAUTIFUL MODERN ALERT
+     ========================================= */
+  .alert-box {
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease-out;
+    border-left-width: 5px;
+    border-left-style: solid;
+  }
+  
+  .alert-success {
+    background: #e8fff3;
+    color: #0f6848;
+    border-left-color: #0f6848;
+    box-shadow: 0 4px 12px rgba(15, 104, 72, 0.15);
+  }
+  
+  .alert-error {
+    background: #fff2f2;
+    color: #a02323;
+    border-left-color: #a02323;
+    box-shadow: 0 4px 12px rgba(160, 35, 35, 0.15);
+  }
+  
+  .alert-icon {
+    font-size: 22px;
+  }
+  
+  .alert-close {
+    margin-left: auto;
+    cursor: pointer;
+    font-weight: bold;
+    opacity: 0.5;
+    font-size: 18px;
+    transition: 0.2s;
+  }
+  
+  .alert-close:hover {
+    opacity: 1;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  
