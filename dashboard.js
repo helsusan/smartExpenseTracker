@@ -115,10 +115,18 @@ function renderDashboard(data) {
   el('incomeValue').textContent = formatRupiah(data.total_income);
   el('expenseValue').textContent = formatRupiah(data.total_expense);
   el('balanceValue').textContent = formatRupiah(data.balance);
-  el('budgetValue').textContent = formatRupiah(data.budget);
-  el('budgetRemaining').textContent = `Remaining: ${formatRupiah(data.remaining)}`;
-  el('budgetPercent').textContent = `${Math.round(data.percentage_used)}%`;
-  el('budgetBar').style.width = `${Math.min(100, Math.max(0, data.percentage_used))}%`;
+// Budget section
+if (data.budget === 0 || data.budget === null || data.budget === undefined) {
+    el('budgetValue').textContent = "Budget has not been set";
+    el('budgetRemaining').textContent = "Remaining: -";
+    el('budgetPercent').textContent = "-%";
+    el('budgetBar').style.width = "0%";
+} else {
+    el('budgetValue').textContent = formatRupiah(data.budget);
+    el('budgetRemaining').textContent = `Remaining: ${formatRupiah(data.remaining)}`;
+    el('budgetPercent').textContent = `${Math.round(data.percentage_used)}%`;
+    el('budgetBar').style.width = `${Math.min(100, Math.max(0, data.percentage_used))}%`;
+}
   el('welcomeText').textContent = `Welcome, ${data.user_name ?? 'User'}!`;
 
   // Category chart
