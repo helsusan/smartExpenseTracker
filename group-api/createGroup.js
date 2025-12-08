@@ -38,9 +38,9 @@ exports.handler = async (event) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // 1. Insert Group
+    // PERBAIKAN: Menambahkan backticks (`) di sekitar nama tabel groups
     const [resGroup] = await connection.execute(
-      `INSERT INTO groups (name, created_by, type, budget, created_at) VALUES (?, ?, ?, ?, NOW())`,
+      `INSERT INTO \`groups\` (name, created_by, type, budget, created_at) VALUES (?, ?, ?, ?, NOW())`,
       [group_name, userId, group_type, group_budget || 0]
     );
     const newGroupId = resGroup.insertId;
@@ -53,12 +53,10 @@ exports.handler = async (event) => {
 
     // 3. Insert Participants
     if (participants && participants.length > 0) {
-      // Split string email menjadi array jika masih string
       const emailList = Array.isArray(participants) ? participants : participants.split(',');
       
       for (const email of emailList) {
         const cleanEmail = email.trim();
-        // Cari user ID berdasarkan email
         const [users] = await connection.execute('SELECT id FROM users WHERE email = ?', [cleanEmail]);
         
         if (users.length > 0 && users[0].id != userId) {

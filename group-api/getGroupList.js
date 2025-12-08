@@ -30,10 +30,12 @@ exports.handler = async (event) => {
 
   try {
     const pool = await getPool();
-    // Query mengambil grup dimana user terdaftar sebagai member/admin
+    
+    // PERBAIKAN: Menambahkan backticks (`) pada nama tabel groups
+    // FROM `groups` g
     const [rows] = await pool.execute(`
       SELECT g.id, g.name 
-      FROM groups g
+      FROM \`groups\` g
       JOIN group_members gm ON g.id = gm.group_id
       WHERE gm.user_id = ?
       ORDER BY g.created_at DESC
