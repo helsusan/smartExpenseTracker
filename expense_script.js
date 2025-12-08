@@ -1,9 +1,9 @@
 /* FILE: expense_script.js
    CHANGED: Replaced PHP AJAX with REST API calls to Lambda (via API Gateway).
-   IMPORTANT: Set API_BASE_URL to your API Gateway base URL (no trailing slash).
+   IMPORTANT: Set EXPENSE_API_URL to your API Gateway base URL (no trailing slash).
 */
 
-const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+const EXPENSE_API_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
 
 // === PERUBAHAN: AMBIL USER ID DARI LOGIN ===
 const CURRENT_USER_ID = localStorage.getItem('user_id');
@@ -55,10 +55,10 @@ function parseRupiah(value) {
 })();
 
 // Load groups from API
-async function loadGroups() {
+async function loadFormGroups() {
   groupsContainer.innerHTML = 'Loading groups...';
   try {
-    const res = await fetch(`${API_BASE_URL}/groups/list?user_id=${CURRENT_USER_ID}`, { method: 'GET' });
+    const res = await fetch(`${EXPENSE_API_URL}/groups/list?user_id=${CURRENT_USER_ID}`, { method: 'GET' });
     if (!res.ok) throw new Error('Failed to fetch groups');
     const data = await res.json();
     renderGroups(data);
@@ -94,7 +94,7 @@ function renderGroups(groups) {
 // Category search
 async function searchCategories(q = '') {
   try {
-    const res = await fetch(`${API_BASE_URL}/categories/search`, {
+    const res = await fetch(`${EXPENSE_API_URL}/categories/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ search: q, user_id: parseInt(CURRENT_USER_ID) })
@@ -224,7 +224,7 @@ expenseForm.addEventListener('submit', async function (e) {
   }
 
   try {
-    const res = await fetch(`${API_BASE_URL}/expense/add`, {
+    const res = await fetch(`${EXPENSE_API_URL}/expense/add`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -235,31 +235,32 @@ expenseForm.addEventListener('submit', async function (e) {
     }
     const json = await res.json();
     if (json.success) {
-      showAlert('success', 'Expense added successfully!');
+      alert('Expense added successfully!'); // ← UBAH: Pakai browser alert
       expenseForm.reset();
       subtotalInput.value = 'Rp 0';
       totalAmountEl.textContent = 'Rp 0';
       grandTotalInput.value = '0';
+      document.querySelector('.upload-text').textContent = "➕ Add Invoice"; // ← TAMBAH: Reset upload text
       // reload groups/categories if needed
-      loadGroups();
+      loadFormGroups();
     } else {
-      showAlert('error', json.message || 'Failed to add expense');
+      alert(json.message || 'Failed to add expense'); // ← UBAH: Pakai browser alert
     }
   } catch (err) {
     console.error(err);
-    showAlert('error', 'Error: ' + (err.message || 'Unknown'));
+    alert('Error: ' + (err.message || 'Unknown'));
   }
 });
 
-function showAlert(type, text) {
-  const alerts = document.getElementById('alerts');
-  alerts.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
-  setTimeout(() => { if (alerts.firstChild) alerts.removeChild(alerts.firstChild); }, 5000);
-}
+// function showAlert(type, text) {
+//   const alerts = document.getElementById('alerts');
+//   alerts.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
+//   setTimeout(() => { if (alerts.firstChild) alerts.removeChild(alerts.firstChild); }, 5000);
+// }
 
 // Event listeners set-up
 document.addEventListener('DOMContentLoaded', function () {
-  loadGroups();
+  loadFormGroups();
   // initial formatting for price inputs
   document.querySelectorAll('.item-price').forEach(i => i.addEventListener('input', function () { this.value = formatRupiah(this.value); calculateSubtotal(); }));
   document.querySelectorAll('.item-quantity').forEach(i => i.addEventListener('input', calculateSubtotal));
@@ -298,7 +299,7 @@ invoiceInput.addEventListener('change', async function(e) {
 
         try {
             // 1. Upload ke S3 via API Gateway
-            const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
+            const uploadRes = await fetch(`${EXPENSE_API_URL}/upload`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: base64String, filename: file.name })
@@ -330,7 +331,7 @@ async function pollScanResult(key, attempts = 0) {
 
     try {
         // Panggil endpoint baru kita
-        const res = await fetch(`${API_BASE_URL}/upload/check-scan?key=${key}`);
+        const res = await fetch(`${EXPENSE_API_URL}/upload/check-scan?key=${key}`);
         
         if (res.status === 200) {
             const data = await res.json();

@@ -13,104 +13,141 @@
   <link rel="stylesheet" href="sidebar_group_style.css">
 </head>
 <body>
-  <header class="navbar">
-    <div class="navbar-left">
-      <button id="hamburger-btn" aria-label="Toggle Sidebar"><span class="material-icons-outlined">menu</span></button>
-      <!-- CHANGED: previously PHP printed username; now hardcoded or set by JS -->
-      <h1 id="welcomeName">Welcome, Aiko!</h1>
-    </div>
-    <div class="navbar-right">
-      <a href="dashboard.html" class="nav-link"><span class="material-icons-outlined">dashboard</span><span>Dashboard</span></a>
-      <a href="transaction.html" class="nav-link"><span class="material-icons-outlined">receipt_long</span><span>Transaction</span></a>
-    </div>
-  </header>
-
-  <div id="sidebar-placeholder"></div>
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
-  <div class="expense-container">
-    <div id="alerts"></div>
-
-    <div class="tab-header">
-      <a href="dashboard.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
-      <div class="tab-container">
-        <a href="income_form.html" class="tab">Income</a>
-        <a href="expense_form.html" class="tab active">Expense</a>
+  <div class="sidebar-root">
+    
+    <header class="navbar">
+      <div class="navbar-left">
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle Sidebar">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <h1 id="welcomeName">Welcome!</h1>
       </div>
-    </div>
+      
+      <div class="navbar-right">
+        <a href="dashboard.html" class="nav-link">
+          <span class="material-icons-outlined">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="transaction.html" class="nav-link">
+          <span class="material-icons-outlined">receipt_long</span>
+          <span>Transaction</span>
+        </a>
+      </div>
+    </header>
 
-    <form id="expenseForm" novalidate>
-      <input type="hidden" id="categoryNameInput" name="category_name">
+    <div id="sidebar-placeholder"></div>
 
-      <div class="form-container">
-        <div class="left-section">
-          <h3 class="section-title">Upload Invoice</h3>
-          <div class="upload-area" onclick="document.getElementById('invoiceUpload').click()">
-            <div class="upload-text">➕ Add Invoice</div>
-            <small class="upload-hint">Accepted formats: JPG, PNG, or PDF (max 5MB)</small>
-            <input type="file" id="invoiceUpload" name="invoice" style="display:none" accept="image/*,.pdf">
-          </div>
+    <main class="expense-container">
+      <div id="alerts"></div>
 
-          <div class="items-table">
-            <table id="itemsTable">
-              <thead>
-                <tr><th>Item Name</th><th>Quantity</th><th>Unit Price</th><th></th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><input type="text" class="item-name" name="items[0][name]" placeholder="Item name"></td>
-                  <td><input type="number" class="item-quantity" name="items[0][quantity]" step="1" placeholder="0"></td>
-                  <td><input type="text" class="item-price" name="items[0][price]" placeholder="Rp 0"></td>
-                  <td><button type="button" class="delete-btn" onclick="deleteRow(this)"><span class="material-icons-outlined">delete</span></button></td>
-                </tr>
-              </tbody>
-            </table>
-            <button type="button" class="add-row-btn" onclick="addItemRow()">+ Add Item</button>
-          </div>
-
-          <div class="summary-item"><span class="summary-label">Subtotal</span><input type="text" id="subtotal" readonly value="Rp 0"></div>
-          <div class="summary-item"><span class="summary-label">Tax</span><input type="text" id="tax" placeholder="Rp 0"></div>
-          <div class="summary-item"><span class="summary-label">Service</span><input type="text" id="service" placeholder="Rp 0"></div>
-          <div class="summary-item"><span class="summary-label">Discount</span><input type="text" id="discount" placeholder="Rp 0"></div>
-
-          <div class="total-amount">
-            <div class="total-label">Total Amount</div>
-            <div class="total-value" id="totalAmount">Rp 0</div>
-            <input type="hidden" id="grandTotalInput" name="grand_total" value="0">
-          </div>
+      <div class="tab-header">
+        <a href="transaction.html" class="back-btn"><span class="material-icons-outlined">logout</span></a>
+        <div class="tab-container">
+          <a href="income_form.html" class="tab">Income</a>
+          <a href="expense_form.html" class="tab active">Expense</a>
         </div>
+      </div>
 
-        <div class="divider"></div>
+      <form id="expenseForm" novalidate>
+        <input type="hidden" id="categoryNameInput" name="category_name">
 
-        <div class="right-section">
-          <div class="form-group"><label class="form-label">Expense Name</label><input type="text" id="expenseName" name="expense_name" class="form-input" required></div>
-          <div class="form-group"><label class="form-label">Date</label><input type="date" id="transactionDate" name="transaction_date" class="form-input" required></div>
-          <div class="form-group"><label class="form-label">Payment Method</label>
-            <select id="paymentMethod" name="payment_method" class="form-select">
-              <option>Cash</option><option>BCA</option><option>BRI</option>
-            </select>
-          </div>
+        <div class="form-container">
+          <div class="left-section">
+            <h3 class="section-title">Upload Invoice</h3>
+            <div class="upload-area" onclick="document.getElementById('invoiceUpload').click()">
+              <div class="upload-text">➕ Add Invoice</div>
+              <small class="upload-hint">Accepted formats: JPG, PNG, or PDF (max 5MB)</small>
+              <input type="file" id="invoiceUpload" name="invoice" style="display:none" accept="image/*,.pdf">
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">Category</label>
-            <div class="dropdown-container">
-              <input type="text" id="dropdownInput" class="dropdown-input" placeholder="Select or create category...">
-              <div id="dropdownList" class="dropdown-list" style="display:none"></div>
+            <div class="items-table">
+              <table id="itemsTable">
+                <thead>
+                  <tr><th>Item Name</th><th>Quantity</th><th>Unit Price</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="item-name" name="items[0][name]" placeholder="Item name"></td>
+                    <td><input type="number" class="item-quantity" name="items[0][quantity]" step="1" placeholder="0"></td>
+                    <td><input type="text" class="item-price" name="items[0][price]" placeholder="Rp 0"></td>
+                    <td><button type="button" class="delete-btn" onclick="deleteRow(this)"><span class="material-icons-outlined">delete</span></button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="add-row-btn" onclick="addItemRow()">+ Add Item</button>
+            </div>
+
+            <div class="summary-item"><span class="summary-label">Subtotal</span><input type="text" id="subtotal" readonly value="Rp 0"></div>
+            <div class="summary-item"><span class="summary-label">Tax</span><input type="text" id="tax" placeholder="Rp 0"></div>
+            <div class="summary-item"><span class="summary-label">Service</span><input type="text" id="service" placeholder="Rp 0"></div>
+            <div class="summary-item"><span class="summary-label">Discount</span><input type="text" id="discount" placeholder="Rp 0"></div>
+
+            <div class="total-amount">
+              <div class="total-label">Total Amount</div>
+              <div class="total-value" id="totalAmount">Rp 0</div>
+              <input type="hidden" id="grandTotalInput" name="grand_total" value="0">
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Group</label>
-            <div id="groupCheckboxes" class="checkbox-group">Loading groups...</div>
-          </div>
+          <div class="divider"></div>
 
-          <button type="submit" class="submit-btn">Add</button>
+          <div class="right-section">
+            <div class="form-group"><label class="form-label">Expense Name</label><input type="text" id="expenseName" name="expense_name" class="form-input" required></div>
+            <div class="form-group"><label class="form-label">Date</label><input type="date" id="transactionDate" name="transaction_date" class="form-input" required></div>
+            <div class="form-group"><label class="form-label">Payment Method</label>
+              <select id="paymentMethod" name="payment_method" class="form-select">
+                <option>Cash</option><option>BCA</option><option>BRI</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <div class="dropdown-container">
+                <input type="text" id="dropdownInput" class="dropdown-input" placeholder="Select or create category...">
+                <div id="dropdownList" class="dropdown-list" style="display:none"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Group</label>
+              <div id="groupCheckboxes" class="checkbox-group">Loading groups...</div>
+            </div>
+
+            <button type="submit" class="submit-btn">Add</button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </main>
   </div>
 
   <script src="expense_script.js"></script>
-  <script src="sidebar_script.js"></script>
+
+  <script>
+    fetch("sidebar.html")
+      .then(r => r.text())
+      .then(html => {
+        // MASUKKAN LANGSUNG tanpa membuat .sidebar-root baru
+        document.getElementById("sidebar-placeholder").innerHTML = html;
+
+        // Tambahkan overlay
+        if (!document.getElementById("sidebar-overlay")) {
+          const overlay = document.createElement("div");
+          overlay.id = "sidebar-overlay";
+          overlay.className = "sidebar-overlay";
+          document.querySelector(".sidebar-root").appendChild(overlay);
+        }
+
+        // Inject sidebar script
+        const script = document.createElement("script");
+        script.src = "sidebar_script.js";
+        script.onload = () => {
+          initSidebar();
+          loadGroups();
+        };
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Sidebar load error:", err));
+  </script>
+
 </body>
 </html>

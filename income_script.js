@@ -1,10 +1,24 @@
 /* FILE: income_script.js
    CHANGED: Added API calls (get groups + submit to API).
-   IMPORTANT: Set API_BASE_URL to the domain where your PHP API is hosted (https://api.example.com).
+   IMPORTANT: Set INCOME_API_URL to the domain where your PHP API is hosted (https://api.example.com).
 */
 
-const API_BASE_URL = 'https://api.example.com'; // <-- CHANGED: set this to your backend domain (no trailing slash)
-const HARDCODED_USER_ID = 3; // CHANGED: previous PHP used user_id=3
+const INCOME_API_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+
+const CURRENT_USER_ID = localStorage.getItem('user_id');
+const CURRENT_USER_NAME = localStorage.getItem('user_name');
+
+// Cek apakah user sudah login
+if (!CURRENT_USER_ID) {
+    alert("You are not logged in!");
+    window.location.href = 'login.html';
+}
+
+// Tampilkan nama user di navbar
+const welcomeName = document.getElementById('welcomeName');
+if (welcomeName && CURRENT_USER_NAME) {
+    welcomeName.textContent = `Welcome, ${CURRENT_USER_NAME}!`;
+}
 
 // Format currency input
 const totalAmountInput = document.getElementById('totalAmount');
@@ -35,13 +49,10 @@ totalAmountInput.addEventListener('input', function(e) {
 });
 
 // --- CHANGED: load groups from API and render checkboxes ---
-async function loadGroups() {
+async function loadFormGroups() {
     try {
         groupsContainer.innerHTML = '<div>Loading groups...</div>';
-        const res = await fetch(`${API_BASE_URL}/api/get_groups.php?user_id=${HARDCODED_USER_ID}`, {
-            method: 'GET',
-            credentials: 'omit' // we are using stateless API here
-        });
+        const res = await fetch(`${INCOME_API_URL}/groups/list?user_id=${CURRENT_USER_ID}`, { method: 'GET' });
         if (!res.ok) throw new Error('Failed to fetch groups');
         const data = await res.json();
 
@@ -74,14 +85,14 @@ async function loadGroups() {
 }
 
 // Call immediately
-loadGroups();
+loadFormGroups();
 
 // Helper: show alert
-function showAlert(type, text) {
-    alertsContainer.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
-    // auto-hide after 6s
-    setTimeout(()=> { if (alertsContainer.firstChild) alertsContainer.removeChild(alertsContainer.firstChild); }, 6000);
-}
+// function showAlert(type, text) {
+//     alertsContainer.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : 'alert-error'}">${text}</div>`;
+//     // auto-hide after 6s
+//     setTimeout(()=> { if (alertsContainer.firstChild) alertsContainer.removeChild(alertsContainer.firstChild); }, 6000);
+// }
 
 // --- CHANGED: submit via fetch to API endpoint ---
 incomeForm.addEventListener('submit', async function(e) {
@@ -100,7 +111,7 @@ incomeForm.addEventListener('submit', async function(e) {
     formData.getAll('groups[]').forEach(g => { if (g) selectedGroups.push(parseInt(g)); });
 
     const payload = {
-        user_id: HARDCODED_USER_ID, // CHANGED: frontend sends user_id; in production you'd use real auth
+        user_id: CURRENT_USER_ID, // CHANGED: frontend sends user_id; in production you'd use real auth
         income_name: formData.get('income_name'),
         income_date: formData.get('income_date'),
         amount: amount,
@@ -109,7 +120,7 @@ incomeForm.addEventListener('submit', async function(e) {
     };
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/add_income.php`, {
+        const res = await fetch(`${INCOME_API_URL}/income/add`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -125,17 +136,17 @@ incomeForm.addEventListener('submit', async function(e) {
 
         const data = await res.json();
         if (data.success) {
-            showAlert('success', 'Income added successfully!');
+            alert('Income added successfully!'); // ← UBAH: Pakai browser alert
             incomeForm.reset();
             totalAmountInput.value = 'Rp 0';
             amountHidden.value = '';
             // reload groups if needed
-            loadGroups();
+            loadFormGroups();
         } else {
-            showAlert('error', data.message || 'Failed to add income');
+            alert(data.message || 'Failed to add income'); // ← UBAH: Pakai browser alert
         }
     } catch (err) {
         console.error(err);
-        showAlert('error', 'Error: ' + (err.message || 'Unknown error'));
+        alert('Error: ' + (err.message || 'Unknown error'));
     }
 });
