@@ -27,7 +27,7 @@ function showAlert(type, message) {
 ========================================= */
 document.addEventListener("DOMContentLoaded", () => {
   if (USER_NAME) {
-    document.getElementById("welcomeText").textContent = `Settings - ${USER_NAME}`;
+    document.getElementById("welcomeText").textContent = `Settings`;
   }
 
   document.getElementById("current-email").value = USER_EMAIL || "-";
