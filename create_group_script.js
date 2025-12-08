@@ -3,14 +3,11 @@
    ========================================= */
    const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
 
-   // Ambil User ID & Name dari LocalStorage (diset saat login)
-   // Jika tidak ada (user belum login), arahkan ke login page atau tangani error
+   // Ambil User ID & Name dari LocalStorage
    const USER_ID = localStorage.getItem("user_id");
    const USER_NAME = localStorage.getItem("user_name");
    
    if (!USER_ID) {
-       // Redirect ke login jika diperlukan
-       // window.location.href = 'index.html'; 
        console.error("User ID not found. Please login.");
    } else {
        const welcomeText = document.getElementById('welcomeText');
@@ -23,7 +20,7 @@
       HELPER: Wait For Element
       ========================================= */
    function waitForElement(selector, timeout = 5000) {
-       return new Promise((resolve, reject) => {
+       return new Promise((resolve) => {
            const interval = setInterval(() => {
                const el = document.querySelector(selector);
                if (el) {
@@ -38,24 +35,36 @@
        });
    }
    
+   /* =========================================
+      ALERT UI MODERN
+      ========================================= */
+   function showAlert(type, message) {
+       const alertBox = document.getElementById('alerts');
+       alertBox.innerHTML = `
+           <div class="alert-box alert-${type}">
+               <span class="alert-icon material-icons-outlined">
+                   ${type === "success" ? "check_circle" : "error"}
+               </span>
+               <span>${message}</span>
+               <span class="alert-close" onclick="this.parentElement.remove()">×</span>
+           </div>
+       `;
+   }
+   
    document.addEventListener('DOMContentLoaded', () => {
-       // 1. INIT SIDEBAR & LOAD GROUP LIST
        waitForElement('.sidebar').then((sidebarEl) => {
            if (sidebarEl) {
-               initSidebar(); 
-               if(USER_ID) loadSidebarGroups(); 
+               initSidebar();
+               if (USER_ID) loadSidebarGroups();
            }
        });
    
-       // 2. LOAD USER LIST (Untuk Autocomplete Invite)
-       if(USER_ID) loadUsersForInvite();
-   
-       // 3. INIT CREATE GROUP FORM
+       if (USER_ID) loadUsersForInvite();
        initCreateGroupForm();
    });
    
    /* =========================================
-      FUNGSI: Sidebar Init
+      SIDEBAR INIT
       ========================================= */
    function initSidebar() {
        const sidebar = document.querySelector('.sidebar');
@@ -68,7 +77,7 @@
        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
    
        newBtn.addEventListener('click', (e) => {
-           e.stopPropagation(); 
+           e.stopPropagation();
            sidebar.classList.toggle('open');
            if (overlay) overlay.classList.toggle('open');
        });
@@ -82,18 +91,18 @@
    }
    
    /* =========================================
-      API: Load Group List ke Sidebar
+      API: Load Group List Sidebar
       ========================================= */
    async function loadSidebarGroups() {
        const groupListUl = document.querySelector('.group-list');
-       if(!groupListUl) return;
+       if (!groupListUl) return;
    
        try {
            const res = await fetch(`${API_BASE_URL}/group-api/getGroupList?userId=${USER_ID}`);
            if (!res.ok) throw new Error('Failed to fetch groups');
-           
+   
            const groups = await res.json();
-           groupListUl.innerHTML = ''; 
+           groupListUl.innerHTML = '';
    
            if (!groups || groups.length === 0) {
                groupListUl.innerHTML = '<li style="padding:10px; color:rgba(255,255,255,0.5);">No groups yet.</li>';
@@ -118,133 +127,175 @@
    }
    
    /* =========================================
-      API: Load Users untuk Invite
+      LOAD USERS UNTUK INVITE
       ========================================= */
+   let availableUsers = [];
+   
    async function loadUsersForInvite() {
        try {
            const res = await fetch(`${API_BASE_URL}/group-api/getUsers?excludeUserId=${USER_ID}`);
            if (!res.ok) throw new Error('Failed to fetch users');
    
-           const users = await res.json();
-           const dataList = document.getElementById('user-emails');
-           
-           if(dataList && Array.isArray(users)) {
-               users.forEach(u => {
-                   const opt = document.createElement('option');
-                   opt.value = u.email;
-                   dataList.appendChild(opt);
-               });
-           }
+           availableUsers = await res.json();
        } catch (err) {
            console.error("Error loading users:", err);
        }
    }
    
    /* =========================================
-      API: Create Group Form Submit
+      RENDER DROPDOWN
+      ========================================= */
+   function renderDropdown(filterText = "") {
+       const dropdown = document.getElementById("email-dropdown");
+       dropdown.innerHTML = "";
+   
+       let filtered = availableUsers;
+   
+       if (filterText.trim() !== "") {
+           filtered = availableUsers.filter(u =>
+               u.email.toLowerCase().includes(filterText.toLowerCase()) ||
+               (u.name && u.name.toLowerCase().includes(filterText.toLowerCase()))
+           );
+       }
+   
+       if (filtered.length === 0) {
+           dropdown.classList.add("hidden");
+           return;
+       }
+   
+       dropdown.classList.remove("hidden");
+   
+       filtered.forEach(user => {
+           const item = document.createElement("div");
+           item.className = "dropdown-item";
+           item.textContent = `${user.email}`;
+   
+           item.addEventListener("click", () => {
+               selectEmail(user.email);
+           });
+   
+           dropdown.appendChild(item);
+       });
+   }
+   
+   /* =========================================
+      PILIH EMAIL
+      ========================================= */
+   function selectEmail(email) {
+       const emailInput = document.getElementById("invite-email");
+       emailInput.value = email;
+   
+       document.getElementById("email-dropdown").classList.add("hidden");
+   }
+   
+   /* =========================================
+      CREATE GROUP FORM
       ========================================= */
    function initCreateGroupForm() {
        const form = document.getElementById('createGroupForm');
        const addBtn = document.getElementById('add-participant-btn');
        const emailInput = document.getElementById('invite-email');
        const participantsList = document.getElementById('participants-list');
-       const dataList = document.getElementById('user-emails');
-       const alertBox = document.getElementById('alerts');
    
        let invitedEmails = [];
    
-       // --- Logic Tombol Add Participant ---
-       if (addBtn && emailInput) {
-           addBtn.addEventListener('click', () => {
-               const email = emailInput.value.trim().toLowerCase();
-               const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+       // Dropdown muncul saat input diklik
+       emailInput.addEventListener("click", () => {
+           renderDropdown("");
+       });
    
-               if (!emailPattern.test(email)) {
-                   alert('Please enter a valid email address.');
-                   return;
-               }
-               if (invitedEmails.includes(email)) {
-                   alert('This email is already added.');
-                   return;
-               }
+       // Filter saat mengetik
+       emailInput.addEventListener("input", () => {
+           renderDropdown(emailInput.value);
+       });
    
-               invitedEmails.push(email);
+       // Tutup dropdown saat klik di luar input
+       document.addEventListener("click", (e) => {
+           if (!emailInput.contains(e.target) && !document.getElementById("email-dropdown").contains(e.target)) {
+               document.getElementById("email-dropdown").classList.add("hidden");
+           }
+       });
    
-               const p = document.createElement('p');
-               p.textContent = email;
-               const removeBtn = document.createElement('span');
-               removeBtn.textContent = ' ×';
-               removeBtn.style.cssText = 'color:#006064; cursor:pointer; margin-left:8px; font-weight:bold;';
-               
-               removeBtn.addEventListener('click', () => {
-                   invitedEmails = invitedEmails.filter(e => e !== email);
-                   p.remove();
-                   if (dataList) {
-                       const opt = document.createElement('option');
-                       opt.value = email;
-                       dataList.appendChild(opt);
-                   }
+       // Tombol Add
+       addBtn.addEventListener("click", () => {
+           const email = emailInput.value.trim().toLowerCase();
+           const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   
+           if (!emailPattern.test(email)) {
+               showAlert("error", "Please enter a valid email address.");
+               return;
+           }
+           if (invitedEmails.includes(email)) {
+               showAlert("error", "This email is already added.");
+               return;
+           }
+   
+           invitedEmails.push(email);
+   
+           availableUsers = availableUsers.filter(u => u.email !== email);
+           renderDropdown("");
+   
+           const p = document.createElement("p");
+           p.textContent = email;
+   
+           const removeBtn = document.createElement("span");
+           removeBtn.textContent = " ×";
+           removeBtn.style.cssText = "color:#006064; cursor:pointer; margin-left:8px; font-weight:bold;";
+   
+           removeBtn.addEventListener("click", () => {
+               invitedEmails = invitedEmails.filter(e => e !== email);
+               p.remove();
+               availableUsers.push({ email });
+               renderDropdown("");
+           });
+   
+           p.appendChild(removeBtn);
+           participantsList.appendChild(p);
+   
+           emailInput.value = "";
+       });
+   
+       // Submit Form
+       form.addEventListener("submit", async (e) => {
+           e.preventDefault();
+   
+           const submitBtn = form.querySelector('.submit-btn');
+           submitBtn.disabled = true;
+           submitBtn.textContent = "Creating...";
+   
+           const payload = {
+               userId: USER_ID,
+               group_name: document.getElementById('group-name').value,
+               group_type: document.getElementById('group-type').value,
+               group_budget: document.getElementById('group-budget').value,
+               participants: invitedEmails
+           };
+   
+           try {
+               const res = await fetch(`${API_BASE_URL}/group-api/createGroup`, {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify(payload)
                });
    
-               p.appendChild(removeBtn);
-               participantsList.appendChild(p);
+               const result = await res.json();
    
-               if (dataList) {
-                   for (let opt of dataList.options) {
-                       if (opt.value === email) { opt.remove(); break; }
-                   }
-               }
-               emailInput.value = '';
-           });
-       }
-   
-       // --- Logic Submit ke API ---
-       if (form) {
-           form.addEventListener('submit', async (e) => {
-               e.preventDefault();
-               
-               if (!USER_ID) {
-                   alertBox.innerHTML = `<div class="alert-error">User session not found. Please login again.</div>`;
-                   return;
+               if (res.ok) {
+                   showAlert("success", "Group created successfully!");
+                   form.reset();
+                   invitedEmails = [];
+                   participantsList.innerHTML = "";
+                   loadSidebarGroups();
+               } else {
+                   showAlert("error", result.error || "Failed to create group.");
                }
    
-               const submitBtn = form.querySelector('.submit-btn');
-               submitBtn.disabled = true;
-               submitBtn.textContent = "Creating...";
-   
-               const payload = {
-                   userId: USER_ID,
-                   group_name: document.getElementById('group-name').value,
-                   group_type: document.getElementById('group-type').value,
-                   group_budget: document.getElementById('group-budget').value,
-                   participants: invitedEmails 
-               };
-   
-               try {
-                   const res = await fetch(`${API_BASE_URL}/group-api/createGroup`, {
-                       method: 'POST',
-                       headers: { 'Content-Type': 'application/json' },
-                       body: JSON.stringify(payload)
-                   });
-   
-                   const result = await res.json();
-   
-                   if (res.ok) {
-                       alertBox.innerHTML = `<div class="alert-success">Group created successfully!</div>`;
-                       form.reset();
-                       invitedEmails = [];
-                       participantsList.innerHTML = '';
-                       loadSidebarGroups(); // Refresh sidebar
-                   } else {
-                       alertBox.innerHTML = `<div class="alert-error">Error: ${result.error || 'Failed to create group'}</div>`;
-                   }
-   
-               } catch (err) {
-                   alertBox.innerHTML = `<div class="alert-error">Network Error: ${err.message}</div>`;
-               } finally {
-                   submitBtn.disabled = false;
-                   submitBtn.textContent = "Create Group";
-               }
-           });
-       }
+           } catch (err) {
+               showAlert("error", "Network Error: " + err.message);
+           } finally {
+               submitBtn.disabled = false;
+               submitBtn.textContent = "Create Group";
+           }
+       });
    }
+   

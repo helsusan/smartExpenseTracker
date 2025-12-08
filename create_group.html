@@ -24,7 +24,7 @@
       <button id="hamburger-btn" class="hamburger-btn">
         <span class="material-icons-outlined">menu</span>
       </button>
-      <h1 id="welcomeText">Welcome!</h1> 
+      <h1 id="welcomeText">Welcome!</h1>
     </div>
 
     <div class="navbar-right">
@@ -41,6 +41,7 @@
     <div id="alerts"></div>
 
     <form id="createGroupForm" class="group-form" novalidate>
+
       <div class="form-group">
         <label for="group-name">Group Name</label>
         <input type="text" id="group-name" placeholder="e.g. Family Budget" required>
@@ -59,20 +60,24 @@
         <input type="number" id="group-budget" placeholder="Enter group budget (Rp)" min="0">
       </div>
 
+      <!-- EMAIL AUTOCOMPLETE DROPDOWN -->
       <div class="form-group">
         <label for="invite-email">Invite Participant</label>
+
         <div class="invite-wrapper">
-          <input type="email" id="invite-email" placeholder="Type user email..." list="user-emails">
+          <div class="autocomplete-wrapper">
+            <input type="text" id="invite-email" placeholder="Search email...">
+            <div id="email-dropdown" class="dropdown hidden"></div>
+          </div>
+
           <button type="button" id="add-participant-btn">Add</button>
         </div>
 
-        <datalist id="user-emails"></datalist>
-
         <div id="participants-list" class="participants-list"></div>
-        <input type="hidden" id="participants-hidden-input">
       </div>
 
       <button type="submit" class="submit-btn">Create Group</button>
+
     </form>
   </main>
 </div>
@@ -84,6 +89,7 @@
     .then(r => r.text())
     .then(html => {
       document.getElementById("sidebar-placeholder").innerHTML = html;
+
       if (!document.getElementById("sidebar-overlay")) {
         const overlay = document.createElement("div");
         overlay.id = "sidebar-overlay";
