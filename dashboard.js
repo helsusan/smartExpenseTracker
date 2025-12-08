@@ -148,50 +148,103 @@ if (data.budget === 0 || data.budget === null || data.budget === undefined) {
     }).render();
   }
 
-  // Daily area chart
-  if (!data.daily_data || data.daily_data.length === 0) {
-    document.getElementById('dailyExpense').style.display = 'none';
-    document.getElementById('noDailyData').classList.remove('hidden');
-  } else {
-    document.getElementById('dailyExpense').style.display = '';
-    document.getElementById('noDailyData').classList.add('hidden');
 
-    const categories = data.daily_data.map(r => r.day);
-    const series = data.daily_data.map(r => Number(r.total));
+// Daily area chart
+if (!data.daily_data || data.daily_data.length === 0) {
+  document.getElementById('dailyExpense').style.display = 'none';
+  document.getElementById('noDailyData').classList.remove('hidden');
+} else {
+  document.getElementById('dailyExpense').style.display = '';
+  document.getElementById('noDailyData').classList.add('hidden');
 
-    new ApexCharts(document.querySelector("#dailyExpense"), {
-      chart: { type: 'area', height: 250, toolbar: { show: false } },
-      series: [{ name: 'Expense', data: series }],
-      xaxis: { categories },
-      stroke: { curve: 'smooth' },
-      fill: { opacity: 0.3, type: 'gradient' },
-      colors: ['#0A514B']
-    }).render();
+  // Format tanggal ke DD-MM-YYYY
+  const formatDate = (dateStr) => {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const categories = data.daily_data.map(r => formatDate(r.day));
+  const series = data.daily_data.map(r => Number(r.total));
+
+  new ApexCharts(document.querySelector("#dailyExpense"), {
+    chart: { type: 'area', height: 250, toolbar: { show: false } },
+    series: [{ name: 'Expense', data: series }],
+
+    xaxis: {
+      categories,
+      labels: {
+        formatter: (value) => value
+      }
+    },
+
+    tooltip: {
+      x: {
+        formatter: (value, opts) => {
+          return categories[opts.dataPointIndex];  // FIX tooltip
+        }
+      }
+    },
+
+    stroke: { curve: 'smooth' },
+    fill: { opacity: 0.3, type: 'gradient' },
+    colors: ['#0A514B']
+  }).render();
+}
+
+
+
+// Money flow
+if (!data.money_flow || data.money_flow.length === 0) {
+  document.getElementById('monthlyBar').style.display = 'none';
+  document.getElementById('noMoneyFlow').classList.remove('hidden');
+} else {
+  document.getElementById('monthlyBar').style.display = '';
+  document.getElementById('noMoneyFlow').classList.add('hidden');
+
+  const months = data.money_flow.map(r => r.month);
+  const incomeSeries = data.money_flow.map(r => Number(r.total_income));
+  const expenseSeries = data.money_flow.map(r => Number(r.total_expense));
+
+new ApexCharts(document.querySelector("#monthlyBar"), {
+  chart: { type: 'bar', height: 300, toolbar: { show: false } },
+
+  series: [
+    { name: 'Income', data: incomeSeries },
+    { name: 'Expense', data: expenseSeries }
+  ],
+
+  xaxis: { categories: months },
+
+  colors: ['#1F8A70', '#063D35'],
+  legend: { position: 'top' },
+
+  dataLabels: {
+    enabled: true,
+    position: 'top',
+    style: {
+      fontSize: '12px',
+      colors: ['#FFFFFF']   // putih
+    },
+    dropShadow: {
+      enabled: true,
+      top: 1,
+      left: 1,
+      blur: 3,
+      opacity: 0.7          // shadow
+    }
+  },
+
+  plotOptions: {
+    bar: {
+      dataLabels: { position: 'top' }
+    }
   }
+}).render();
 
-  // Money flow
-  if (!data.money_flow || data.money_flow.length === 0) {
-    document.getElementById('monthlyBar').style.display = 'none';
-    document.getElementById('noMoneyFlow').classList.remove('hidden');
-  } else {
-    document.getElementById('monthlyBar').style.display = '';
-    document.getElementById('noMoneyFlow').classList.add('hidden');
-
-    const months = data.money_flow.map(r => r.month);
-    const incomeSeries = data.money_flow.map(r => Number(r.total_income));
-    const expenseSeries = data.money_flow.map(r => Number(r.total_expense));
-
-    new ApexCharts(document.querySelector("#monthlyBar"), {
-      chart: { type: 'bar', height: 300, toolbar: { show: false } },
-      series: [
-        { name: 'Income', data: incomeSeries },
-        { name: 'Expense', data: expenseSeries }
-      ],
-      xaxis: { categories: months },
-      colors: ['#1F8A70', '#063D35'],
-      legend: { position: 'top' }
-    }).render();
-  }
+}
 }
 
 // Startup

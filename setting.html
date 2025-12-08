@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Settings - Smart Expense Tracker</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+  <link rel="stylesheet" href="sidebar_group_style.css">
+  <link rel="stylesheet" href="setting_style.css">
+
+  <link rel="icon" href="data:,">
+</head>
+
+<body>
+
+<div class="sidebar-root">
+  <div id="sidebar-placeholder"></div>
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <button id="hamburger-btn" class="hamburger-btn">
+        <span class="material-icons-outlined">menu</span>
+      </button>
+      <h1 id="welcomeText">Settings</h1>
+    </div>
+
+    <div class="navbar-right">
+      <a href="dashboard.html" class="nav-link">
+        <span class="material-icons-outlined">dashboard</span> Dashboard
+      </a>
+      <a href="transaction.html" class="nav-link">
+        <span class="material-icons-outlined">receipt_long</span> Transaction
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="alerts"></div>
+
+    <form id="updateBudgetForm" class="settings-form">
+
+      <div class="form-group">
+        <label for="current-email">Email</label>
+        <input type="text" id="current-email" disabled>
+      </div>
+
+      <div class="form-group">
+        <label for="current-budget">Current Budget</label>
+        <input type="text" id="current-budget" disabled>
+      </div>
+
+      <div class="form-group">
+        <label for="new-budget">New Budget</label>
+        <input type="number" id="new-budget" min="0" placeholder="Enter new budget" required>
+      </div>
+
+      <button type="submit" class="submit-btn">Update Budget</button>
+
+    </form>
+  </main>
+</div>
+
+<script src="setting_script.js"></script>
+
+<script>
+    fetch("sidebar.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("sidebar-placeholder").innerHTML = html;
+
+        // Tambahkan overlay
+        if (!document.getElementById("sidebar-overlay")) {
+          const overlay = document.createElement("div");
+          overlay.id = "sidebar-overlay";
+          overlay.className = "sidebar-overlay";
+          document.querySelector(".sidebar-root").appendChild(overlay);
+        }
+
+        // Inject sidebar script
+        const script = document.createElement("script");
+        script.src = "sidebar_script.js";
+        script.onload = () => {
+          initSidebar();
+          loadGroups();
+        };
+        document.body.appendChild(script);
+      })
+      .catch(err => console.error("Sidebar load error:", err));
+  </script>
+
+</body>
+</html>

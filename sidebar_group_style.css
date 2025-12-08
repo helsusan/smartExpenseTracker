@@ -244,9 +244,12 @@
   }
   
   .sidebar-root .sidebar-footer {
-    margin-top: 20px;
+    display: flex;
+    flex-direction: column; /* susun tombol vertikal */
+    gap: 10px; /* jarak antar tombol */
+    margin-top: 20px; /* tetap bisa untuk jarak dari elemen atas */
   }
-  
+
   /* GROUP LIST */
   .sidebar-root .group-title {
     font-size: 13px;
@@ -353,4 +356,31 @@
     margin-bottom: 20px;
     opacity: 0.5;
   }
+
+  /* ================================
+   SETTING BUTTON
+   ================================ */
+.sidebar-root .setting-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid var(--sidebar-border);
+  color: var(--text-inactive);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-root .setting-btn:hover {
+  background: var(--sidebar-hover);
+  border-color: var(--text-inactive);
+}
+
   
