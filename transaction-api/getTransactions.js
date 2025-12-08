@@ -24,7 +24,7 @@ function buildResponse(statusCode, body) {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+      'Access-Control-Allow-Headers': '*'
     },
     body: JSON.stringify(body)
   };
@@ -56,7 +56,7 @@ exports.handler = async (event) => {
        FROM transactions t
        LEFT JOIN categories c ON t.category_id = c.id
        LEFT JOIN transaction_groups tg ON t.id = tg.transaction_id
-       LEFT JOIN group_name g ON tg.group_id = g.id
+       LEFT JOIN \`groups\` g ON tg.group_id = g.id
        WHERE t.user_id = ? AND t.date BETWEEN ? AND ?
        ORDER BY t.date DESC`,
       [user_id, start_date, end_date]

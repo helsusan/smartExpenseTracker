@@ -1,86 +1,94 @@
-// transaction_script.js
-// Frontend logic: fetch transactions from Lambda API and populate DataTable
-// IMPORTANT: change API_BASE to your API Gateway base URL (no trailing slash)
-const API_BASE = "https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod"; 
+// transaction_script.js (FINAL FIXED VERSION)
+
+// IMPORTANT: your API Gateway base URL
+const API_BASE = "https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod";
 
 document.addEventListener('DOMContentLoaded', () => {
-    const USER_ID = localStorage.getItem("user_id");
-   const USER_NAME = localStorage.getItem("user_name");
-   
-   if (!USER_ID) {
-       // Redirect ke login jika diperlukan
-       // window.location.href = 'index.html'; 
-       console.error("User ID not found. Please login.");
-       return;
-   } else {
-       const welcomeText = document.getElementById('welcomeText');
-       if (welcomeText) {
-           welcomeText.textContent = `Welcome, ${USER_NAME || 'User'}!`;
-       }
-   }
-   
 
-  // Load sidebar (optional) - if you exported sidebar.html to S3, we can fetch it
+  // --- Load USER_ID from URL or localStorage ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlUserId = urlParams.get("user_id");
+
+  let USER_ID = urlUserId || localStorage.getItem("user_id");
+  let USER_NAME = localStorage.getItem("user_name");
+
+  if (!USER_ID) {
+      console.error("User ID not found. Please login.");
+      // window.location.href = "index.html";
+      return;
+  }
+
+  // Save back to localStorage if needed
+  localStorage.setItem("user_id", USER_ID);
+
+  if (document.getElementById('welcomeText')) {
+      document.getElementById('welcomeText').textContent = `Welcome, ${USER_NAME || 'User'}!`;
+  }
+
+  // --- Load sidebar ---
   fetchSidebar();
 
-  // Initialize date range from URL params or default (first day of this month to today)
-  const urlParams = new URLSearchParams(window.location.search);
+  // --- Handle default date range ---
   const startParam = urlParams.get('start_date');
   const endParam = urlParams.get('end_date');
+
   const today = new Date();
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
   const defaultStart = startParam || formatDateISO(firstDay);
   const defaultEnd = endParam || formatDateISO(today);
 
-  // Flatpickr range
+  // Initialize Flatpickr
   const fp = flatpickr("#dateRange", {
     mode: "range",
     dateFormat: "Y-m-d",
     defaultDate: [defaultStart, defaultEnd],
-    onReady: selectedDates => updateDisplayedRange(selectedDates),
-    onChange: selectedDates => {
+    onReady: (selectedDates) => updateDisplayedRange(selectedDates),
+    onChange: (selectedDates) => {
       if (selectedDates.length === 2) {
         const s = formatDateISO(selectedDates[0]);
         const e = formatDateISO(selectedDates[1]);
+
         updateDisplayedRange(selectedDates);
-        // reload with new params (so backend can filter)
-        window.location = `?start_date=${s}&end_date=${e}`;
+
+        // --- FIXED: redirect with USER_ID included ---
+        window.location.href = `transaction.html?user_id=${USER_ID}&start_date=${s}&end_date=${e}`;
       }
     }
   });
 
-  // Buttons
+  // Button filter
   const buttons = {
     all: document.getElementById('btnAll'),
     income: document.getElementById('btnIncome'),
     expense: document.getElementById('btnExpense'),
   };
+
   let selectedType = "All";
+
   function setActiveButton(activeBtn) {
     Object.values(buttons).forEach(b => b.classList.remove('btn-active'));
     activeBtn.classList.add('btn-active');
   }
+
   buttons.all.addEventListener('click', () => { selectedType = "All"; setActiveButton(buttons.all); table.draw(); });
   buttons.income.addEventListener('click', () => { selectedType = "Income"; setActiveButton(buttons.income); table.draw(); });
   buttons.expense.addEventListener('click', () => { selectedType = "Expense"; setActiveButton(buttons.expense); table.draw(); });
 
-  // Fetch transactions from API and populate
-  const start_date = defaultStart;
-  const end_date = defaultEnd;
-
-  fetchTransactions(USER_ID, start_date, end_date)
+  // Fetch transaction data
+  fetchTransactions(USER_ID, defaultStart, defaultEnd)
     .then(rows => populateTable(rows))
     .catch(err => {
       console.error(err);
-      document.getElementById('transactionsBody').innerHTML = `<tr><td colspan="8" class="p-4 text-red-500">Failed to load transactions</td></tr>`;
+      document.getElementById('transactionsBody').innerHTML =
+        `<tr><td colspan="8" class="p-4 text-red-500">Failed to load transactions</td></tr>`;
     });
 
-  // DataTable will be created inside populateTable
   let table = null;
 
   function populateTable(rows) {
     const tbody = document.getElementById('transactionsBody');
     tbody.innerHTML = '';
+
     rows.forEach(r => {
       const tr = document.createElement('tr');
       tr.dataset.id = r.id;
@@ -98,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.appendChild(tr);
     });
 
-    // Init DataTable
+    // Initialize DataTable
     table = $('#transactionTable').DataTable({
       pageLength: 10,
       lengthChange: true,
@@ -142,26 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Helpers
-  function formatItemsTable(items) {
-    let html = `<table class="ml-6 my-2 border border-gray-300 rounded-md w-11/12 text-sm"><thead><tr class="border-b border-gray-300">
-      <th class="p-2 text-left font-semibold">Item Name</th>
-      <th class="p-2 text-left font-semibold">Quantity</th>
-      <th class="p-2 text-left font-semibold">Unit Price</th>
-      <th class="p-2 text-left font-semibold">Subtotal</th>
-    </tr></thead><tbody>`;
-    items.forEach(it => {
-      html += `<tr class="border-b border-gray-200">
-        <td class="p-2">${escapeHtml(it.item_name)}</td>
-        <td class="p-2">${escapeHtml(it.quantity)}</td>
-        <td class="p-2">Rp ${Number(it.unit_price).toLocaleString()}</td>
-        <td class="p-2 text-right font-medium">Rp ${Number(it.subtotal).toLocaleString()}</td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    return html;
-  }
-
+  // API call
   function fetchTransactions(user_id, start_date, end_date) {
     const url = `${API_BASE}/transactions?user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`;
     return fetch(url).then(r => {
@@ -170,45 +159,74 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Helper functions
+  function formatItemsTable(items) {
+    let html = `
+      <table class="ml-6 my-2 border border-gray-300 rounded-md w-11/12 text-sm">
+        <thead>
+          <tr class="border-b border-gray-300">
+            <th class="p-2 text-left font-semibold">Item Name</th>
+            <th class="p-2 text-left font-semibold">Quantity</th>
+            <th class="p-2 text-left font-semibold">Unit Price</th>
+            <th class="p-2 text-left font-semibold">Subtotal</th>
+          </tr>
+        </thead><tbody>
+    `;
+
+    items.forEach(it => {
+      html += `
+        <tr class="border-b border-gray-200">
+          <td class="p-2">${escapeHtml(it.item_name)}</td>
+          <td class="p-2">${escapeHtml(it.quantity)}</td>
+          <td class="p-2">Rp ${Number(it.unit_price).toLocaleString()}</td>
+          <td class="p-2 text-right font-medium">Rp ${Number(it.subtotal).toLocaleString()}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table>';
+    return html;
+  }
+
   function formatDateISO(d) {
-    if (!d) d = new Date();
     const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   }
+
   function formatDateDisplay(s) {
     if (!s) return '-';
     const d = new Date(s);
     const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
+
   function formatCurrency(v) {
-    return `Rp${Number(v).toLocaleString('id-ID')}`;
+    return `Rp${Number(v).toLocaleString("id-ID")}`;
   }
+
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
-    return String(str).replace(/[&<>"']/g, function (s) {
-      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]);
-    });
+    return String(str).replace(/[&<>"']/g, (s) =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])
+    );
   }
 
   function updateDisplayedRange(dates) {
     if (!dates || dates.length < 2) return;
     const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
     const s = dates[0], e = dates[1];
-    document.getElementById('dateRange').value = `${s.getDate()} ${months[s.getMonth()]} ${s.getFullYear()} - ${e.getDate()} ${months[e.getMonth()]} ${e.getFullYear()}`;
+    document.getElementById('dateRange').value =
+      `${s.getDate()} ${months[s.getMonth()]} ${s.getFullYear()} - ${e.getDate()} ${months[e.getMonth()]} ${e.getFullYear()}`;
   }
 
-  // Optionally load sidebar HTML from S3 (if you created sidebar.html)
   function fetchSidebar() {
-    // If you uploaded sidebar.html to S3, change path below accordingly.
-    fetch('sidebar.html').then(r => {
-      if (!r.ok) throw new Error('no sidebar');
-      return r.text();
-    }).then(html => {
-      document.getElementById('sidebar-placeholder').innerHTML = html;
-    }).catch(() => { /* ignore if sidebar not present */ });
+    fetch("sidebar.html")
+      .then(r => r.ok ? r.text() : Promise.reject())
+      .then(html => {
+        document.getElementById("sidebar-placeholder").innerHTML = html;
+      })
+      .catch(() => {});
   }
 
 });
