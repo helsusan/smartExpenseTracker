@@ -1,0 +1,101 @@
+/* group_dashboard_style.css */
+/* Inherits most from dashboard.css style */
+
+body { 
+  font-family: 'Poppins', sans-serif; 
+  margin:0; 
+}
+
+.card {
+  display:flex; 
+  gap:16px; 
+  align-items:center; 
+  padding:16px;
+  background:white; 
+  border-radius:12px; 
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+
+.card-icon { 
+  width:48px; 
+  height:48px; 
+  border-radius:8px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  color:white; 
+}
+.card-icon.bg-green { background:#0A514B; }
+
+.card-dark { 
+  background:#0A514B; 
+  color:white; 
+}
+
+.material-icons-outlined { font-size:22px; }
+
+.calendar-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;               
+  border: 1.5px solid #0A514B;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  background-color: #0A514B;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: 180px;
+}
+.calendar-input svg { width: 16px; height: 16px; }
+
+.icon-center {
+  display: flex; align-items: center; justify-content: center; font-size: 26px; color: white;
+}
+.icon-balance { color: #0A514B; }
+
+.hidden { display:none; }
+
+/* Member List Items */
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+.member-item:hover {
+    background-color: #f3f4f6;
+}
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #0A514B;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+.member-info {
+    flex: 1;
+}
+.member-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+}
+.member-role {
+    font-size: 0.75rem;
+    color: #666;
+    background-color: #e5e7eb;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.member-role.admin {
+    background-color: #dcfce7;
+    color: #166534;
+}

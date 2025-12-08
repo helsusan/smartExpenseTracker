@@ -26,34 +26,71 @@ function waitForElement(selector, timeout = 5000) {
   });
 }
 
+// document.addEventListener('DOMContentLoaded', () => {
+//   waitForElement('.sidebar').then(() => {
+//     setTimeout(() => {
+//       initSidebar();
+//       loadGroups();
+//     }, 50);
+//   }).catch(err => console.error(err));
+// });
+
 document.addEventListener('DOMContentLoaded', () => {
-  waitForElement('.sidebar').then(() => {
-    setTimeout(() => {
-      initSidebar();
-      loadGroups();
-    }, 50);
-  }).catch(err => console.error(err));
+  // Hanya jalankan jika ada elemen sidebar
+  waitForElement('.sidebar').then((sidebarEl) => {
+    if (sidebarEl) {
+      setTimeout(() => {
+        initSidebar();
+        if (SIDEBAR_USER_ID) loadGroups();
+      }, 50);
+    }
+  });
 });
+
+// function initSidebar() {
+//   const sidebar = document.querySelector('.sidebar');
+//   const overlay = document.getElementById('sidebar-overlay');
+//   const toggleBtn = document.getElementById('hamburger-btn');
+
+//   if (!sidebar || !overlay || !toggleBtn) {
+//     console.error("Sidebar elements missing!");
+//     return;
+//   }
+
+//   toggleBtn.addEventListener('click', () => {
+//     sidebar.classList.toggle('open');
+//     overlay.classList.toggle('open');
+//   });
+
+//   overlay.addEventListener('click', () => {
+//     sidebar.classList.remove('open');
+//     overlay.classList.remove('open');
+//   });
+// }
 
 function initSidebar() {
   const sidebar = document.querySelector('.sidebar');
   const overlay = document.getElementById('sidebar-overlay');
   const toggleBtn = document.getElementById('hamburger-btn');
 
-  if (!sidebar || !overlay || !toggleBtn) {
-    console.error("Sidebar elements missing!");
-    return;
-  }
+  if (!sidebar || !toggleBtn) return;
 
-  toggleBtn.addEventListener('click', () => {
+  // Clone button untuk menghapus event listener lama
+  const newBtn = toggleBtn.cloneNode(true);
+  toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+
+  newBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     sidebar.classList.toggle('open');
-    overlay.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('open');
   });
 
-  overlay.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-  });
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    });
+  }
 }
 
 /* Load group list */
@@ -80,7 +117,7 @@ async function loadGroups() {
     groups.forEach(g => {
       const li = document.createElement('li');
       li.innerHTML = `
-        <a href="group_detail.html?id=${g.id}" class="group-item">
+        <a href="group_detail.html?groupId=${g.id}" class="group-item">
           <span class="material-icons-outlined">group</span>
           <span>${g.name}</span>
         </a>`;

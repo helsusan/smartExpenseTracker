@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Group Dashboard - Smart Expense Tracker</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+  <link rel="stylesheet" href="sidebar_group_style.css">
+  <link rel="stylesheet" href="group_detail_style.css">
+
+  <base href="/" />
+</head>
+<body>
+
+  <div class="sidebar-root">
+
+    <header class="navbar">
+      <div class="navbar-left">
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle Sidebar">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <div class="flex flex-col">
+            <h1 id="groupNameTitle" class="text-xl font-bold leading-tight">Loading...</h1>
+            <span id="groupRoleBadge" class="text-xs bg-white/20 px-2 py-0.5 rounded w-fit mt-1 hidden">Member</span>
+        </div>
+      </div>
+
+      <div class="navbar-right">
+        <a href="dashboard.html" class="nav-link">
+          <span class="material-icons-outlined">dashboard</span>
+          <span class="hidden sm:inline">Dashboard</span>
+        </a>
+        <a href="transaction.html" class="nav-link">
+          <span class="material-icons-outlined">receipt_long</span>
+          <span class="hidden sm:inline">Transaction</span>
+        </a>
+      </div>
+    </header>
+
+    <div id="sidebar-placeholder"></div>
+
+    <main class="bg-[#FDFBEE] min-h-screen p-6">
+      
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <div id="monthPicker" class="calendar-input">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <input id="datePickerInput" type="text" readonly class="bg-transparent w-full focus:outline-none cursor-pointer" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <div class="card">
+          <div class="card-icon bg-green">
+            <span class="material-icons-outlined">account_balance_wallet</span>
+          </div>
+          <div>
+            <p id="budgetValueCard" class="text-lg font-semibold">Rp 0</p>
+            <p class="text-sm text-gray-500">Group Budget</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon bg-green">
+            <span class="material-icons-outlined">money_off</span>
+          </div>
+          <div>
+            <p id="expenseValue" class="text-lg font-semibold">Rp 0</p>
+            <p class="text-sm text-gray-500">Total Expense</p>
+          </div>
+        </div>
+
+        <div class="card card-dark">
+          <div class="card-icon bg-white">
+            <span class="material-icons-outlined icon-balance">savings</span>
+          </div>
+          <div>
+            <p id="balanceValue" class="text-lg font-semibold text-white">Rp 0</p>
+            <p class="text-sm text-white/90">Remaining</p>
+          </div>
+        </div>
+
+        <div class="card">
+            <div class="card-icon bg-green">
+              <span class="material-icons-outlined">groups</span>
+            </div>
+            <div>
+              <p id="memberCount" class="text-lg font-semibold">0</p>
+              <p class="text-sm text-gray-500">Members</p>
+            </div>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="font-semibold mb-2">Budget Usage</h2>
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-2 overflow-hidden">
+                <div id="budgetBar" class="bg-[#0A514B] h-4 rounded-full transition-all duration-500" style="width:0%"></div>
+                </div>
+                <div class="flex justify-between text-sm font-medium">
+                <span id="budgetPercent">0% Used</span>
+                <span id="budgetRemaining" class="text-red-600">Remaining: Rp 0</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="font-semibold mb-2 text-center">Expense by Category</h2>
+                <div id="expensePie" class="w-full h-[300px]"></div>
+                <div id="noCategoryData" class="text-center text-gray-500 hidden mt-10">No data available for this month</div>
+            </div>
+
+             <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="font-semibold mb-2 text-center">Daily Expense Trend</h2>
+                <div id="dailyExpense" class="w-full h-[250px]"></div>
+                <div id="noDailyData" class="text-center text-gray-500 hidden mt-10">No transactions found</div>
+              </div>
+        </div>
+
+        <div class="flex flex-col gap-6">
+            
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="font-semibold mb-4 border-b pb-2">Group Members</h2>
+                <div id="memberListContainer" class="flex flex-col gap-3 max-h-[300px] overflow-y-auto">
+                    <div class="text-sm text-gray-500">Loading members...</div>
+                </div>
+            </div>
+
+             <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="font-semibold mb-2 text-center text-sm">Top Spenders</h2>
+                <div id="memberPie" class="w-full h-[250px]"></div>
+                <div id="noMemberData" class="text-center text-gray-500 hidden mt-10 text-xs">No spending data</div>
+            </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="group_detail_script.js"></script>
+
+  <script>
+    fetch("sidebar.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("sidebar-placeholder").innerHTML = html;
+        if (!document.getElementById("sidebar-overlay")) {
+          const overlay = document.createElement("div");
+          overlay.id = "sidebar-overlay";
+          overlay.className = "sidebar-overlay";
+          document.querySelector(".sidebar-root").appendChild(overlay);
+        }
+        const script = document.createElement("script");
+        script.src = "sidebar_script.js";
+        script.onload = () => { initSidebar(); loadGroups(); };
+        document.body.appendChild(script);
+      });
+  </script>
+</body>
+</html>
