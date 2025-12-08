@@ -1,17 +1,17 @@
 // transaction_script.js
 // Frontend logic: fetch transactions from Lambda API and populate DataTable
 // IMPORTANT: change API_BASE to your API Gateway base URL (no trailing slash)
-const API_BASE = "https://{API_ID}.execute-api.{REGION}.amazonaws.com/prod"; // <-- EDIT THIS
-const HARD_CODED_USER_ID = 3; // matches original behavior where user is hardcoded for testing
+const API_BASE = "https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod"; 
 
 document.addEventListener('DOMContentLoaded', () => {
-     const USER_ID = localStorage.getItem("user_id");
+    const USER_ID = localStorage.getItem("user_id");
    const USER_NAME = localStorage.getItem("user_name");
    
    if (!USER_ID) {
        // Redirect ke login jika diperlukan
        // window.location.href = 'index.html'; 
        console.error("User ID not found. Please login.");
+       return;
    } else {
        const welcomeText = document.getElementById('welcomeText');
        if (welcomeText) {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const start_date = defaultStart;
   const end_date = defaultEnd;
 
-  fetchTransactions(HARD_CODED_USER_ID, start_date, end_date)
+  fetchTransactions(USER_ID, start_date, end_date)
     .then(rows => populateTable(rows))
     .catch(err => {
       console.error(err);
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="py-2 px-4">${formatCurrency(r.amount)}</td>
         <td class="py-2 px-4">${escapeHtml(r.payment_method || '-')}</td>
         <td class="py-2 px-4">${escapeHtml(r.category || '-')}</td>
-        <td class="py-2 px-4">${escapeHtml(r.group || '-')}</td>
+        <td class="py-2 px-4">${escapeHtml(r.group_name || '-')}</td>
       `;
       tbody.appendChild(tr);
     });

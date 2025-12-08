@@ -1,18 +1,35 @@
 // getTransactions.js
-const { getPool } = require('./db');
+const mysql = require('mysql2/promise');
+
+let pool;
+
+async function getPool() {
+  if (pool) return pool;
+  pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 5
+  });
+  return pool;
+}
+
 
 function buildResponse(statusCode, body) {
   return {
     statusCode,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*', // limit in production
+      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
     },
     body: JSON.stringify(body)
   };
 }
+
 
 exports.handler = async (event) => {
   // Allow CORS preflight
@@ -35,11 +52,11 @@ exports.handler = async (event) => {
     const [rows] = await pool.execute(
       `SELECT
          t.id, t.date, t.type, t.name, t.amount, t.payment_method,
-         c.name AS category, g.name AS \`group\`
+         c.name AS category, g.name AS group_name
        FROM transactions t
        LEFT JOIN categories c ON t.category_id = c.id
        LEFT JOIN transaction_groups tg ON t.id = tg.transaction_id
-       LEFT JOIN \`groups\` g ON tg.group_id = g.id
+       LEFT JOIN group_name g ON tg.group_id = g.id
        WHERE t.user_id = ? AND t.date BETWEEN ? AND ?
        ORDER BY t.date DESC`,
       [user_id, start_date, end_date]
