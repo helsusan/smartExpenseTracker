@@ -61,6 +61,21 @@ async function loadGroupData() {
 function renderPage(data) {
   const { info, stats, charts, members, current_user_role } = data;
 
+  // --- LOGIKA BARU UNTUK TOMBOL EDIT GROUP ---
+  const editBtn = el("editGroupBtn");
+  
+  if (current_user_role === "Admin") {
+    // 1. Munculkan tombol
+    editBtn.classList.remove("hidden");
+    
+    // 2. Set href ke halaman edit dengan membawa groupId
+    // GROUP_ID sudah diambil di baris awal file script ini
+    editBtn.href = `edit_group.html?id=${GROUP_ID}`; 
+  } else {
+    // Pastikan tersembunyi jika bukan admin
+    editBtn.classList.add("hidden");
+  }
+
   // header
   el("groupNameTitle").textContent = info.name;
   const badge = el("groupRoleBadge");
