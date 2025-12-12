@@ -92,15 +92,23 @@
     .then(r => r.text())
     .then(html => {
       document.getElementById("sidebar-placeholder").innerHTML = html;
+
+      // Tambahkan overlay
       if (!document.getElementById("sidebar-overlay")) {
         const overlay = document.createElement("div");
         overlay.id = "sidebar-overlay";
         overlay.className = "sidebar-overlay";
         document.querySelector(".sidebar-root").appendChild(overlay);
       }
-      const s = document.createElement("script");
-      s.src = "sidebar_script.js";
-      document.body.appendChild(s);
+
+      // Inject sidebar script
+      const script = document.createElement("script");
+      script.src = "sidebar_script.js";
+      script.onload = () => {
+        initSidebar();
+        loadGroups();
+      };
+      document.body.appendChild(script);
     })
     .catch(err => console.error("Sidebar load error:", err));
 </script>
