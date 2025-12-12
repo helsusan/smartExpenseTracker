@@ -1,4 +1,4 @@
-   const API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
+   const GROUP_API_BASE_URL = 'https://ysws5lx0nb.execute-api.us-east-1.amazonaws.com/prod';
    const USER_ID = localStorage.getItem("user_id");
    const USER_NAME = localStorage.getItem("user_name");
    
@@ -76,7 +76,7 @@
       =========================== */
    async function loadGroup() {
      try {
-       const res = await fetch(`${API_BASE_URL}/group-api/getGroup?groupId=${encodeURIComponent(GROUP_ID)}`);
+       const res = await fetch(`${GROUP_API_BASE_URL}/group-api/getGroup?groupId=${encodeURIComponent(GROUP_ID)}`);
        if (!res.ok) throw new Error('Failed to load group');
        groupData = await res.json();
      } catch (err) {
@@ -84,10 +84,29 @@
        showAlert('error', 'Gagal load group: ' + err.message);
      }
    }
+
+//      async function loadGroup() {
+//      try {
+// const res = await fetch(
+//   `${GROUP_API_BASE_URL}/group-api/getGroupList?groupId=${encodeURIComponent(GROUP_ID)}`,
+//   {
+//     headers: {
+//       "Content-Type": "application/json",
+//       "X-User-Id": USER_ID
+//     }
+//   }
+// );
+//        if (!res.ok) throw new Error('Failed to load group');
+//        groupData = await res.json();
+//      } catch (err) {
+//        console.error(err);
+//        showAlert('error', 'Gagal load group: ' + err.message);
+//      }
+//    }
    
    async function loadGroupMembers() {
      try {
-       const res = await fetch(`${API_BASE_URL}/group-api/getGroupMembers?groupId=${encodeURIComponent(GROUP_ID)}`);
+       const res = await fetch(`${GROUP_API_BASE_URL}/group-api/getGroupMembers?groupId=${encodeURIComponent(GROUP_ID)}`);
        if (!res.ok) throw new Error('Failed to load members');
        members = await res.json();
      } catch (err) {
@@ -98,7 +117,7 @@
    
    async function loadUsersForInvite() {
      try {
-       const res = await fetch(`${API_BASE_URL}/group-api/getUsers?excludeUserId=${encodeURIComponent(USER_ID)}`);
+       const res = await fetch(`${GROUP_API_BASE_URL}/group-api/getUsers?excludeUserId=${encodeURIComponent(USER_ID)}`);
        if (!res.ok) throw new Error('Failed to load users');
        availableUsers = await res.json();
        // remove those already member (active or removed) from dropdown options
@@ -222,7 +241,7 @@
          addBtn.disabled = true;
          addBtn.textContent = 'Adding...';
    
-         const res = await fetch(`${API_BASE_URL}/group-api/addMember`, {
+         const res = await fetch(`${GROUP_API_BASE_URL}/group-api/addMember`, {
            method: 'POST',
            headers: {'Content-Type':'application/json'},
            body: JSON.stringify({ userId: USER_ID, groupId: GROUP_ID, email: u.email })
@@ -261,7 +280,7 @@
        saveBtn.textContent = 'Saving...';
    
        try {
-         const res = await fetch(`${API_BASE_URL}/group-api/updateGroup`, {
+         const res = await fetch(`${GROUP_API_BASE_URL}/group-api/updateGroup`, {
            method: 'POST',
            headers: {'Content-Type':'application/json'},
            body: JSON.stringify({ userId: USER_ID, groupId: GROUP_ID, name, budget })
@@ -332,7 +351,7 @@
      if (!confirm(`Remove ${memberName}? This will set their membership status to Removed.`)) return;
    
      try {
-       const res = await fetch(`${API_BASE_URL}/group-api/removeMember`, {
+       const res = await fetch(`${GROUP_API_BASE_URL}/group-api/removeMember`, {
          method: 'POST',
          headers: {'Content-Type':'application/json'},
          body: JSON.stringify({ userId: USER_ID, groupId: GROUP_ID, memberUserId })
