@@ -167,7 +167,7 @@ exports.handler = async (event) => {
           for (const groupId of data.groups) {
             await conn.execute(
               `INSERT INTO transaction_groups (transaction_id, group_id) VALUES (?, ?)`,
-              [transactionId, groupId]
+              [tId, groupId]
             );
           }
         }
