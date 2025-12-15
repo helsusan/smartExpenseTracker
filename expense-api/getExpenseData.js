@@ -163,6 +163,15 @@ exports.handler = async (event) => {
           }
         }
 
+        if (Array.isArray(data.groups) && data.groups.length > 0) {
+          for (const groupId of data.groups) {
+            await conn.execute(
+              `INSERT INTO transaction_groups (transaction_id, group_id) VALUES (?, ?)`,
+              [transactionId, groupId]
+            );
+          }
+        }
+
         await conn.commit();
         conn.release();
 
